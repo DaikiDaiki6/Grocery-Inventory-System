@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Wxr/+AgXngqcFaZu1jZogPox+ff1FZUtoZt51dxEkec=",
+  "Source": "GroceryInventoryAPI",
+  "BasePath": "_content/GroceryInventoryAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
