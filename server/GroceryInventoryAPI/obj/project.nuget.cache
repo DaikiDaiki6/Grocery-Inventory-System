@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "H8mA/EZ9YNg=",
+  "dgSpecHash": "PwtcPZk4aeE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
+  "projectFilePath": "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\jeffr\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\jeffr\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.17\\microsoft.aspnetcore.openapi.8.0.17.nupkg.sha512",
