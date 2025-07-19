@@ -1,6 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroceryInventoryAPI.Controllers;
 
@@ -16,13 +17,43 @@ public class SuppliersController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllSuppliers()
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var suppliers = await _dbContext.Suppliers
+            .Select(i => new
+            {
+                i.SupplierID,
+                i.SupplierName,
+                Products = i.Products != null ? i.Products.Select(p => new
+                {
+                    p.ProductID,
+                    p.ProductName
+                }) : null,
+            })
+            .ToListAsync();
+
+        return Ok(suppliers);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetSpecificSupplier(int id)
+    public async Task<IActionResult> GetSpecificSupplier(string id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var supplier = await _dbContext.Suppliers
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.SupplierID == id);
+
+        if (supplier == null)
+        {
+            return NotFound();
+        }
+        return Ok(new
+        {
+            supplier.SupplierID,
+            supplier.SupplierName,
+            Product = supplier.Products != null ? supplier.Products.Select(i => new
+            {
+                i.ProductID,
+                i.ProductName
+            }) : null
+        });
     }
 
     [HttpPost]
@@ -43,9 +74,17 @@ public class SuppliersController : BaseController
         return await Task.FromResult(Ok("Stub: GetAllInventories"));
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteSupplier()
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteSupplier(string id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingSupplier = await _dbContext.Suppliers.FirstOrDefaultAsync(t => t.SupplierID == id);
+
+        if (existingSupplier == null)
+        {
+            return NotFound();
+        }
+        _dbContext.Suppliers.Remove(existingSupplier);
+        await _dbContext.SaveChangesAsync();
+        return NoContent();
     }
 }

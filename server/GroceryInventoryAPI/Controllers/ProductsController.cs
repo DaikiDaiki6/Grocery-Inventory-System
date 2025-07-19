@@ -1,6 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroceryInventoryAPI.Controllers;
 
@@ -16,13 +17,39 @@ public class ProductsController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllProducts()
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var products = await _dbContext.Products
+            .Select(i => new
+            {
+                i.ProductID,
+                i.ProductName,
+                Category = i.Category != null ? i.Category.CategoryName : null,
+                Supplier = i.Supplier != null ? i.Supplier.SupplierName : null
+            })
+            .ToListAsync();
+
+        return Ok(products);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetSpecificProduct(int id)
+    public async Task<IActionResult> GetSpecificProduct(string id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var product = await _dbContext.Products
+            .Include(c => c.Category)
+            .Include(s => s.Supplier)
+            .FirstOrDefaultAsync(i => i.ProductID == id);
+
+        if (product == null)
+        {
+            return NotFound($"Inventory with ID {id} not found");
+        }
+
+        return Ok(new
+        {
+            product.ProductID,
+            product.ProductName,
+            Category = product.Category != null ? product.Category.CategoryName : null,
+            Supplier = product.Supplier != null ? product.Supplier.SupplierName : null
+        });
     }
 
     [HttpPost]
@@ -43,10 +70,18 @@ public class ProductsController : BaseController
         return await Task.FromResult(Ok("Stub: GetAllInventories"));
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteProduct()
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(string id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingProduct = await _dbContext.Products.FirstOrDefaultAsync(t => t.ProductID == id);
+
+        if (existingProduct == null)
+        {
+            return NotFound();
+        }
+        _dbContext.Products.Remove(existingProduct);
+        await _dbContext.SaveChangesAsync();
+        return NoContent();
     }
 
 }

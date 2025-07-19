@@ -1,6 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroceryInventoryAPI.Controllers;
 
@@ -16,13 +17,41 @@ public class WarehousesController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllWarehouses()
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var warehouses = await _dbContext.Warehouses
+            .Select(i => new
+            {
+                i.WarehouseID,
+                i.WarehouseName,
+                Inventories = i.Inventories != null ? i.Inventories.Select(p => new
+                {
+                    p.InventoryID,
+                }) : null,
+            })
+            .ToListAsync();
+
+        return Ok(warehouses);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSpecificWarehouse(int id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var warehouse = await _dbContext.Warehouses
+            .Include(c => c.Inventories)
+            .FirstOrDefaultAsync(c => c.WarehouseID == id);
+        if (warehouse == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            warehouse.WarehouseID,
+            warehouse.WarehouseName,
+            Inventories = warehouse.Inventories != null ? warehouse.Inventories.Select(p => new
+            {
+                p.InventoryID
+            }) : null,
+        });
     }
 
     [HttpPost]
@@ -37,9 +66,17 @@ public class WarehousesController : BaseController
         return await Task.FromResult(Ok("Stub: GetAllInventories"));
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteWarehouse()
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteWarehouse(int id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingWarehouse = await _dbContext.Warehouses.FirstOrDefaultAsync(t => t.WarehouseID == id);
+
+        if (existingWarehouse == null)
+        {
+            return NotFound();
+        }
+        _dbContext.Warehouses.Remove(existingWarehouse);
+        await _dbContext.SaveChangesAsync();
+        return NoContent();
     }
 }

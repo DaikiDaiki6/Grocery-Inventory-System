@@ -1,6 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroceryInventoryAPI.Controllers;
 
@@ -16,13 +17,39 @@ public class CategoriesController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var categories = await _dbContext.Categories
+            .Select(p => new
+            {
+                p.CategoryID,
+                p.CategoryName
+            })
+            .ToListAsync();
+
+        return Ok(categories);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSpecificCategory(int id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var category = await _dbContext.Categories
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.CategoryID == id);
+
+        if (category == null)
+        {
+            return NotFound($"Category with ID {id} not found");
+        }
+
+        return Ok(new
+        {
+            category.CategoryID,
+            category.CategoryName,
+            Products = category.Products?.Select(p => new
+            {
+                p.ProductID,
+                p.ProductName  
+            })
+        });
     }
 
     [HttpPost]
@@ -37,9 +64,17 @@ public class CategoriesController : BaseController
         return await Task.FromResult(Ok("Stub: GetAllInventories"));
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteCategory()
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteCategory(int id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingCategory = await _dbContext.Categories.FirstOrDefaultAsync(t => t.CategoryID == id);
+
+        if (existingCategory == null)
+        {
+            return NotFound();
+        }
+        _dbContext.Categories.Remove(existingCategory);
+        await _dbContext.SaveChangesAsync();
+        return NoContent();
     }
 }
