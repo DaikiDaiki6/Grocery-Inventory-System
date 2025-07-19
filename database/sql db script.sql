@@ -1,50 +1,50 @@
 BEGIN;
 
--- Category Table
-CREATE TABLE IF NOT EXISTS public."Category" (
-    "Category_ID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "Category_Name" VARCHAR NOT NULL
+-- Categories Table
+CREATE TABLE IF NOT EXISTS public."Categories" (
+    "CategoryID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "CategoryName" VARCHAR NOT NULL
 );
 
--- Supplier Table
-CREATE TABLE IF NOT EXISTS public."Supplier" (
-    "Supplier_ID" VARCHAR(11) PRIMARY KEY,
-    "Supplier_Name" VARCHAR NOT NULL
+-- Suppliers Table
+CREATE TABLE IF NOT EXISTS public."Suppliers" (
+    "SupplierID" VARCHAR(11) PRIMARY KEY,
+    "SupplierName" VARCHAR NOT NULL
 );
 
--- Warehouse Table
-CREATE TABLE IF NOT EXISTS public."Warehouse" (
-    "Warehouse_ID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "Warehouse_Name" VARCHAR NOT NULL
+-- Warehouses Table
+CREATE TABLE IF NOT EXISTS public."Warehouses" (
+    "WarehouseID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "WarehouseName" VARCHAR NOT NULL
 );
 
--- Product Table
-CREATE TABLE IF NOT EXISTS public."Product" (
-    "Product_ID" VARCHAR(11) PRIMARY KEY,
-    "Product_Name" VARCHAR NOT NULL,
-    "Category_ID" INTEGER NOT NULL,
-    "Supplier_ID" VARCHAR(11) NOT NULL,
-    FOREIGN KEY ("Category_ID") REFERENCES public."Category" ("Category_ID"),
-    FOREIGN KEY ("Supplier_ID") REFERENCES public."Supplier" ("Supplier_ID")
+-- Products Table
+CREATE TABLE IF NOT EXISTS public."Products" (
+    "ProductID" VARCHAR(11) PRIMARY KEY,
+    "ProductName" VARCHAR NOT NULL,
+    "CategoryID" INTEGER NOT NULL,
+    "SupplierID" VARCHAR(11) NOT NULL,
+    FOREIGN KEY ("CategoryID") REFERENCES public."Categories" ("CategoryID"),
+    FOREIGN KEY ("SupplierID") REFERENCES public."Suppliers" ("SupplierID")
 );
 
--- Inventory Table
-CREATE TABLE IF NOT EXISTS public."Inventory" (
-    "Inventory_ID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "Stock_Quantity" INTEGER NOT NULL,
-    "Reorder_Level" INTEGER NOT NULL,
-    "Reorder_Quantity" INTEGER NOT NULL,
-    "Unit_Price" NUMERIC NOT NULL,
-    "Date_Received" DATE NOT NULL,
-    "Last_Order_Date" DATE NOT NULL,
-    "Expiration_Date" DATE NOT NULL,
-    "Sales_Volume" INTEGER NOT NULL,
-    "Inventory_Turnover_Rate" INTEGER NOT NULL,
+-- Inventories Table
+CREATE TABLE IF NOT EXISTS public."Inventories" (
+    "InventoryID" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "StockQuantity" INTEGER NOT NULL,
+    "ReorderLevel" INTEGER NOT NULL,
+    "ReorderQuantity" INTEGER NOT NULL,
+    "UnitPrice" NUMERIC NOT NULL,
+    "DateReceived" DATE NOT NULL,
+    "LastOrderDate" DATE NOT NULL,
+    "ExpirationDate" DATE NOT NULL,
+    "SalesVolume" INTEGER NOT NULL,
+    "InventoryTurnoverRate" INTEGER NOT NULL,
     "Status" VARCHAR NOT NULL,
-    "Product_ID" VARCHAR(11) NOT NULL,
-    "Warehouse_ID" INTEGER NOT NULL,
-    FOREIGN KEY ("Product_ID") REFERENCES public."Product" ("Product_ID"),
-    FOREIGN KEY ("Warehouse_ID") REFERENCES public."Warehouse" ("Warehouse_ID")
+    "ProductID" VARCHAR(11) NOT NULL,
+    "WarehouseID" INTEGER NOT NULL,
+    FOREIGN KEY ("ProductID") REFERENCES public."Products" ("ProductID"),
+    FOREIGN KEY ("WarehouseID") REFERENCES public."Warehouses" ("WarehouseID")
 );
 
 END;

@@ -4,6 +4,9 @@ namespace GroceryInventoryAPI.Models;
 
 public class Category
 {
-    public int Category_ID { get; set; }
-    public string Category_Name { get; set; } = string.Empty;
+    public int CategoryID { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+
+    // Collection of Using Categories
+    public ICollection<Product>? Products { get; set; }
 }
