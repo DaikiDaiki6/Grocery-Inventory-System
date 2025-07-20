@@ -78,7 +78,11 @@ public class WarehousesController : BaseController
         {
             return NotFound();
         }
-        existingWarehouse.WarehouseName = warehouseRequest.WarehouseName;
+        if (!string.IsNullOrEmpty(warehouseRequest.WarehouseName))
+        {
+            existingWarehouse.WarehouseName = warehouseRequest.WarehouseName;
+        }
+
         await _dbContext.SaveChangesAsync();
         return Ok(new
         {

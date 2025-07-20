@@ -17,7 +17,7 @@ public class Inventory
     public int ReorderQuantity { get; set; }
     public decimal UnitPrice { get; set; }
     public DateOnly DateReceived { get; set; }
-    public DateOnly LastOrderDate { get; set; }
+    public DateOnly? LastOrderDate { get; set; }
     public DateOnly ExpirationDate { get; set; }
     public int SalesVolume { get; set; }
     public int InventoryTurnoverRate { get; set; }

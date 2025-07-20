@@ -82,7 +82,10 @@ public class SuppliersController : BaseController
         {
             return NotFound();
         }
-        existingSupplier.SupplierName = supplierRequest.SupplierName;
+        if (!string.IsNullOrEmpty(supplierRequest.SupplierName))
+        {
+            existingSupplier.SupplierName = supplierRequest.SupplierName;
+        }
         await _dbContext.SaveChangesAsync();
 
         return Ok(existingSupplier);

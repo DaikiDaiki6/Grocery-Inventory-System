@@ -76,7 +76,10 @@ public class CategoriesController : BaseController
         {
             return NotFound();
         }
-        existingCategory.CategoryName = categoryRequest.CategoryName;
+        if (!string.IsNullOrEmpty(categoryRequest.CategoryName))
+        {
+            existingCategory.CategoryName = categoryRequest.CategoryName;
+        }
         await _dbContext.SaveChangesAsync();
         return Ok(new
         {
