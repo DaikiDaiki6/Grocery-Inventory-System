@@ -1,5 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs.Warehouse;
+using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,15 +57,34 @@ public class WarehousesController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostWarehouse()
+    public async Task<IActionResult> PostWarehouse([FromBody] PostWarehouseRequest warehouseRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var newWarehouse = new Warehouse
+        {
+            WarehouseName = warehouseRequest.WarehouseName,
+        };
+
+        _dbContext.Warehouses.Add(newWarehouse);
+        await _dbContext.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetSpecificWarehouse), new { id = newWarehouse.WarehouseID }, newWarehouse);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> PutWarehouse()
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchWarehouse(int id, [FromBody] PatchWarehouseRequest warehouseRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingWarehouse = await _dbContext.Warehouses.FindAsync(id);
+        if (existingWarehouse == null)
+        {
+            return NotFound();
+        }
+        existingWarehouse.WarehouseName = warehouseRequest.WarehouseName;
+        await _dbContext.SaveChangesAsync();
+        return Ok(new
+        {
+            existingWarehouse.WarehouseID,
+            existingWarehouse.WarehouseName,
+        });
     }
 
     [HttpDelete("{id}")]

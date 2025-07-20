@@ -1,5 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs.Product;
+using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,21 +55,61 @@ public class ProductsController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostProduct()
+    public async Task<IActionResult> PostProduct([FromBody] PostProductRequest productRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+       
+        var newProduct = new Product
+        {
+            ProductName = productRequest.ProductName,
+            CategoryID = productRequest.CategoryID,
+            SupplierID = productRequest.SupplierID
+        };
+
+        _dbContext.Products.Add(newProduct);
+        await _dbContext.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetSpecificProduct), new { id = newProduct.ProductID }, newProduct);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> PutProduct()
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutProduct(string id, [FromBody] PutProductRequest productRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingProduct = await _dbContext.Products.FindAsync(id);
+        if (existingProduct == null)
+        {
+            return NotFound();
+        }
+        existingProduct.ProductName = productRequest.ProductName;
+        existingProduct.CategoryID = productRequest.CategoryID;
+        existingProduct.SupplierID = productRequest.SupplierID;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(existingProduct);
     }
 
-    [HttpPatch]
-    public async Task<IActionResult> PatchProduct()
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchProduct(string id, [FromBody] PatchProductRequest productRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingProduct = await _dbContext.Products.FindAsync(id);
+        if (existingProduct == null)
+        {
+            return NotFound();
+        }
+        if (!string.IsNullOrEmpty(productRequest.ProductName))
+        {
+            existingProduct.ProductName = productRequest.ProductName;
+        }
+        if (productRequest.CategoryID.HasValue)
+        {
+            existingProduct.CategoryID = productRequest.CategoryID.Value;
+        }
+        if (!string.IsNullOrEmpty(productRequest.SupplierID))
+        {
+            existingProduct.SupplierID = productRequest.SupplierID;
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return Ok(existingProduct);
     }
 
     [HttpDelete("{id}")]

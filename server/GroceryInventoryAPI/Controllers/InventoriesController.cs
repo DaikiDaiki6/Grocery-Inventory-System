@@ -1,5 +1,6 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs.Inventory;
 using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -82,21 +83,114 @@ public class InventoriesController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostInventory()
+    public async Task<IActionResult> PostInventory([FromBody] PostInventoryRequest inventoryRequest)
     {
-        return await Task.FromResult(Ok("Stub: PostInventory"));
+        var newInventory = new Inventory
+        {
+            StockQuantity = inventoryRequest.StockQuantity,
+            ReorderLevel = inventoryRequest.ReorderLevel,
+            ReorderQuantity = inventoryRequest.ReorderQuantity,
+            UnitPrice = inventoryRequest.UnitPrice,
+            DateReceived = inventoryRequest.DateReceived,
+            LastOrderDate = inventoryRequest.LastOrderDate,
+            ExpirationDate = inventoryRequest.ExpirationDate,
+            SalesVolume = inventoryRequest.SalesVolume,
+            InventoryTurnoverRate = inventoryRequest.InventoryTurnoverRate,
+            Status = inventoryRequest.Status,
+            ProductID = inventoryRequest.ProductID,
+            WarehouseID = inventoryRequest.WarehouseID
+        };
+
+        _dbContext.Inventories.Add(newInventory);
+        await _dbContext.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetSpecificInventory), new { id = newInventory.InventoryID }, newInventory);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutInventory(int id)
+    public async Task<IActionResult> PutInventory(int id, [FromBody] PutInventoryRequest inventoryRequest)
     {
-        return await Task.FromResult(Ok($"Stub: PutInventory for ID {id}"));
+        var existingInventory = await _dbContext.Inventories.FindAsync(id);
+        if (existingInventory == null)
+        {
+            return NotFound();
+        }
+        existingInventory.StockQuantity = inventoryRequest.StockQuantity;
+        existingInventory.ReorderLevel = inventoryRequest.ReorderLevel;
+        existingInventory.ReorderQuantity = inventoryRequest.ReorderQuantity;
+        existingInventory.UnitPrice = inventoryRequest.UnitPrice;
+        existingInventory.DateReceived = inventoryRequest.DateReceived;
+        existingInventory.LastOrderDate = inventoryRequest.LastOrderDate;
+        existingInventory.ExpirationDate = inventoryRequest.ExpirationDate;
+        existingInventory.SalesVolume = inventoryRequest.SalesVolume;
+        existingInventory.InventoryTurnoverRate = inventoryRequest.InventoryTurnoverRate;
+        existingInventory.Status = inventoryRequest.Status;
+        existingInventory.ProductID = inventoryRequest.ProductID;
+        existingInventory.WarehouseID = inventoryRequest.WarehouseID;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(existingInventory);
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> PatchInventory(int id)
+    public async Task<IActionResult> PatchInventory(int id, [FromBody] PatchInventoryRequest inventoryRequest)
     {
-        return await Task.FromResult(Ok($"Stub: PatchInventory for ID {id}"));
+        var existingInventory = await _dbContext.Inventories.FindAsync(id);
+        if (existingInventory == null)
+        {
+            return NotFound();
+        }
+        if (inventoryRequest.StockQuantity.HasValue)
+        {
+            existingInventory.StockQuantity = inventoryRequest.StockQuantity.Value;
+        }
+        if (inventoryRequest.ReorderLevel.HasValue)
+        {
+            existingInventory.ReorderLevel = inventoryRequest.ReorderLevel.Value;
+        }
+        if (inventoryRequest.ReorderQuantity.HasValue)
+        {
+            existingInventory.ReorderQuantity = inventoryRequest.ReorderQuantity.Value;
+        }
+        if (inventoryRequest.UnitPrice.HasValue)
+        {
+            existingInventory.UnitPrice = inventoryRequest.UnitPrice.Value;
+        }
+        if (inventoryRequest.DateReceived.HasValue)
+        {
+            existingInventory.DateReceived = inventoryRequest.DateReceived.Value;
+        }
+        if (inventoryRequest.LastOrderDate.HasValue)
+        {
+            existingInventory.LastOrderDate = inventoryRequest.LastOrderDate.Value;
+        }
+        if (inventoryRequest.ExpirationDate.HasValue)
+        {
+            existingInventory.ExpirationDate = inventoryRequest.ExpirationDate.Value;
+        }
+        if (inventoryRequest.SalesVolume.HasValue)
+        {
+            existingInventory.SalesVolume = inventoryRequest.SalesVolume.Value;
+        }
+        if (inventoryRequest.InventoryTurnoverRate.HasValue)
+        {
+            existingInventory.InventoryTurnoverRate = inventoryRequest.InventoryTurnoverRate.Value;
+        }
+        if (inventoryRequest.Status.HasValue)
+        {
+            existingInventory.Status = inventoryRequest.Status.Value;
+        }
+        if (!string.IsNullOrEmpty(inventoryRequest.ProductID))
+        {
+            existingInventory.ProductID = inventoryRequest.ProductID;
+        }
+        if (inventoryRequest.WarehouseID.HasValue)
+        {
+            existingInventory.WarehouseID = inventoryRequest.WarehouseID.Value;
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return Ok(existingInventory);
     }
 
     [HttpDelete("{id}")]

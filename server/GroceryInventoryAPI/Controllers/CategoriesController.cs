@@ -1,5 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs.Category;
+using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,21 +49,40 @@ public class CategoriesController : BaseController
             Products = category.Products?.Select(p => new
             {
                 p.ProductID,
-                p.ProductName  
+                p.ProductName
             })
         });
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostCategory()
+    public async Task<IActionResult> PostCategory([FromBody] PostCategoryRequest categoryRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var newCategory = new Category
+        {
+            CategoryName = categoryRequest.CategoryName,
+        };
+
+        _dbContext.Categories.Add(newCategory);
+        await _dbContext.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetSpecificCategory), new { id = newCategory.CategoryID }, newCategory);
     }
 
-    [HttpPatch]
-    public async Task<IActionResult> PatchCategory()
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchCategory(int id, [FromBody] PatchCategoryRequest categoryRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var existingCategory = await _dbContext.Categories.FindAsync(id);
+        if (existingCategory == null)
+        {
+            return NotFound();
+        }
+        existingCategory.CategoryName = categoryRequest.CategoryName;
+        await _dbContext.SaveChangesAsync();
+        return Ok(new
+        {
+            existingCategory.CategoryID,
+            existingCategory.CategoryName,
+        });
     }
 
     [HttpDelete("{id:int}")]

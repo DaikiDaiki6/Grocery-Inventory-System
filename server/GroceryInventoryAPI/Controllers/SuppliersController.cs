@@ -1,5 +1,7 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs.Supplier;
+using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,21 +59,33 @@ public class SuppliersController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostSupplier()
+    public async Task<IActionResult> PostSupplier([FromBody] PostSupplierRequest supplierRequest)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        var newSupplier = new Supplier
+        {
+            SupplierID = supplierRequest.SupplierID,
+            SupplierName = supplierRequest.SupplierName,
+        };
+
+        _dbContext.Suppliers.Add(newSupplier);
+        await _dbContext.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetSpecificSupplier), new { id = newSupplier.SupplierID }, newSupplier);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> PutSupplier()
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchSupplier([FromBody] PatchSupplierRequest supplierRequest, string id)
     {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
-    }
+        var existingSupplier = await _dbContext.Suppliers.FindAsync(id);
 
-    [HttpPatch]
-    public async Task<IActionResult> PatchSupplier()
-    {
-        return await Task.FromResult(Ok("Stub: GetAllInventories"));
+        if (existingSupplier == null)
+        {
+            return NotFound();
+        }
+        existingSupplier.SupplierName = supplierRequest.SupplierName;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(existingSupplier);
     }
 
     [HttpDelete("{id}")]
