@@ -9,6 +9,6 @@ public class PatchProductRequest
     public string? ProductName { get; set; }
     [Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0")]
     public int? CategoryID { get; set; }
-    [StringLength(11, ErrorMessage = "Supplier ID must be exactly 11 characters")]
+    [StringLength(11, MinimumLength = 11, ErrorMessage = "Supplier ID must be exactly 11 characters")]
     public string? SupplierID { get; set; }
 }

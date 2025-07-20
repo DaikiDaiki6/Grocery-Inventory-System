@@ -24,9 +24,9 @@ public class PatchInventoryRequest
     public int? SalesVolume { get; set; }
     [Range(0, int.MaxValue, ErrorMessage = "Inventory turnover rate must be 0 or greater")]
     public int? InventoryTurnoverRate { get; set; }
-
+    [Range(0, 2, ErrorMessage = "Status must be 0 (Active), 1 (BackOrdered), or 2 (Discontinued)")]
     public Status? Status { get; set; }
-    [StringLength(11, ErrorMessage = "Product ID must be exactly 11 characters")]
+    [StringLength(11, MinimumLength = 11, ErrorMessage = "Product ID must be exactly 11 characters")]
 
     public string? ProductID { get; set; }
     [Range(1, int.MaxValue, ErrorMessage = "Warehouse ID must be greater than 0")]

@@ -42,7 +42,7 @@ public class ProductsController : BaseController
 
         if (product == null)
         {
-            return NotFound($"Inventory with ID {id} not found");
+            return NotFound($"Product with ID {id} not found");
         }
 
         return Ok(new
@@ -60,6 +60,7 @@ public class ProductsController : BaseController
        
         var newProduct = new Product
         {
+            ProductID = productRequest.ProductID,
             ProductName = productRequest.ProductName,
             CategoryID = productRequest.CategoryID,
             SupplierID = productRequest.SupplierID

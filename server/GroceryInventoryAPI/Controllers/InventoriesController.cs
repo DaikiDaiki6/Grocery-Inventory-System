@@ -91,9 +91,9 @@ public class InventoriesController : BaseController
             ReorderLevel = inventoryRequest.ReorderLevel,
             ReorderQuantity = inventoryRequest.ReorderQuantity,
             UnitPrice = inventoryRequest.UnitPrice,
-            DateReceived = inventoryRequest.DateReceived,
+            DateReceived = inventoryRequest.DateReceived!.Value,
             LastOrderDate = inventoryRequest.LastOrderDate,
-            ExpirationDate = inventoryRequest.ExpirationDate,
+            ExpirationDate = inventoryRequest.ExpirationDate!.Value,
             SalesVolume = inventoryRequest.SalesVolume,
             InventoryTurnoverRate = inventoryRequest.InventoryTurnoverRate,
             Status = inventoryRequest.Status,
@@ -119,9 +119,9 @@ public class InventoriesController : BaseController
         existingInventory.ReorderLevel = inventoryRequest.ReorderLevel;
         existingInventory.ReorderQuantity = inventoryRequest.ReorderQuantity;
         existingInventory.UnitPrice = inventoryRequest.UnitPrice;
-        existingInventory.DateReceived = inventoryRequest.DateReceived;
+        existingInventory.DateReceived = inventoryRequest.DateReceived!.Value;
         existingInventory.LastOrderDate = inventoryRequest.LastOrderDate;
-        existingInventory.ExpirationDate = inventoryRequest.ExpirationDate;
+        existingInventory.ExpirationDate = inventoryRequest.ExpirationDate!.Value;
         existingInventory.SalesVolume = inventoryRequest.SalesVolume;
         existingInventory.InventoryTurnoverRate = inventoryRequest.InventoryTurnoverRate;
         existingInventory.Status = inventoryRequest.Status;
