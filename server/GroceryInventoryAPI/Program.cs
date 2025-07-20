@@ -1,4 +1,5 @@
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.MiddleWare;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -27,8 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
+app.UseMiddleware<ExceptionMiddleWare>();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
