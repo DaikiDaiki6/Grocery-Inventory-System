@@ -13,6 +13,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<GroceryDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -28,6 +39,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowReactApp");
 app.UseMiddleware<ExceptionMiddleWare>();
 app.UseHttpsRedirection();
 app.MapControllers();
