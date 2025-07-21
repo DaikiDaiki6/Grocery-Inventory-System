@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj": {}
+    "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj": {}
   },
   "projects": {
-    "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj": {
+    "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
+        "projectUniqueName": "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
         "projectName": "GroceryInventoryAPI",
-        "projectPath": "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
+        "projectPath": "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\GroceryInventoryAPI.csproj",
         "packagesPath": "C:\\Users\\jeffr\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\obj\\",
+        "outputPath": "C:\\Users\\jeffr\\Documents\\Programming\\GroceryInventorySystem\\server\\GroceryInventoryAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\jeffr\\AppData\\Roaming\\NuGet\\NuGet.Config"
