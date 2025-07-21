@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useGetAllCategories } from "../../hooks/useCategories";
 
-function Categories() {
+function GetAllCategories() {
   const { data: categories, isLoading, error } = useGetAllCategories();
 
   if (isLoading){
@@ -37,4 +36,4 @@ function Categories() {
   )
 }
 
-export default Categories
+export default GetAllCategories
