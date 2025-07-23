@@ -41,7 +41,7 @@ function GetSpecificCategory() {
       {currentId && (
         <div className="category-details">
           {isLoading && <p>Loading category...</p>}
-          {error && <p>Error Loading category: {error.response?.data || error.message}</p>}
+          {error && <p>Error Loading category: {error.message || error.response?.data?.title }</p>}
 
           {!isLoading && !error && category && (
             <div className="category-info">

@@ -89,9 +89,11 @@ function DeleteCategory() {
         <div style={{ color: "red", marginTop: "1rem" }}>
           <h3>Error</h3>
           <p>
-            Error deleting category:{" "}
-            {deleteCategory.error?.response?.data ||
-              deleteCategory.error?.message}
+            Error deleting categories:{" "}
+            {typeof deleteCategory.error?.response?.data === "string"
+              ? deleteCategory.error.response.data
+              : deleteCategory.error?.response?.data?.title ||
+                deleteCategory.error?.message}
           </p>
         </div>
       )}

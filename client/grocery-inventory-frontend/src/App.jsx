@@ -1,23 +1,22 @@
-import { useState } from 'react'
-import GetAllCategories from './components/Categories/GetAllCategories'
-import GetSpecificCategory from './components/Categories/GetSpecificCategory'
-import PostCategory from './components/Categories/PostCategory'
-import PatchCategory from './components/Categories/PatchCategory'
-import DeleteCategory from './components/Categories/DeleteCategory'
-
+import { useState } from "react";
+import GetAllSuppliers from "./components/Suppliers/GetAllSuppliers";
+import GetSpecificSupplier from "./components/Suppliers/GetSpecificSupplier";
+import PostSupplier from "./components/Suppliers/PostSupplier";
+import PatchSupplier from "./components/Suppliers/PatchSupplier";
+import DeleteSupplier from "./components/Suppliers/DeleteSupplier";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
-    <GetAllCategories/>
-    <GetSpecificCategory/>
-    <PostCategory/>
-    <PatchCategory/>
-    <DeleteCategory/>
+      {/* <GetAllSuppliers /> */}
+      <GetSpecificSupplier />
+      <PostSupplier />
+      <PatchSupplier />
+      <DeleteSupplier />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

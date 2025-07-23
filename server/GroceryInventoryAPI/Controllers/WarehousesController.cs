@@ -42,7 +42,7 @@ public class WarehousesController : BaseController
             .FirstOrDefaultAsync(c => c.WarehouseID == id);
         if (warehouse == null)
         {
-            return NotFound();
+            return NotFound("Warehouse not found");
         }
 
         return Ok(new
@@ -98,7 +98,7 @@ public class WarehousesController : BaseController
 
         if (existingWarehouse == null)
         {
-            return NotFound();
+            return NotFound("Warehouse not found");
         }
         _dbContext.Warehouses.Remove(existingWarehouse);
         await _dbContext.SaveChangesAsync();

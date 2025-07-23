@@ -95,7 +95,7 @@ public class CategoriesController : BaseController
 
         if (existingCategory == null)
         {
-            return NotFound();
+            return NotFound("Category not found");
         }
         _dbContext.Categories.Remove(existingCategory);
         await _dbContext.SaveChangesAsync();
