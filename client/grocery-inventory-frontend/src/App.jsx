@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import GetAllCategories from './components/Categories/GetAllCategories'
 import GetSpecificCategory from './components/Categories/GetSpecificCategory'
+import PostCategory from './components/Categories/PostCategory'
+import PatchCategory from './components/Categories/PatchCategory'
+import DeleteCategory from './components/Categories/DeleteCategory'
 
 
 function App() {
@@ -10,7 +11,11 @@ function App() {
 
   return (
     <>
-      <GetSpecificCategory/>
+    <GetAllCategories/>
+    <GetSpecificCategory/>
+    <PostCategory/>
+    <PatchCategory/>
+    <DeleteCategory/>
     </>
   )
 }
