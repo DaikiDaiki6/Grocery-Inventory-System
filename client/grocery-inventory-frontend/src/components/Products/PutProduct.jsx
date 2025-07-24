@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { usePutProduct } from "../../hooks/useProducts";
+import {useFetchForeignKeys} from "./useFetchForeignKeys";
+
 
 function PutProduct() {
   const [putId, setPutId] = useState("");
@@ -7,6 +9,7 @@ function PutProduct() {
   const [categoryId, setCategoryId] = useState("");
   const [supplierId, setSupplierId] = useState("");
   const putProduct = usePutProduct();
+  const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,60 +46,69 @@ function PutProduct() {
     if (e.target.name == "productName") {
       setProductName(e.target.value);
     }
-    if (e.target.name == "categoryId") {
-      setCategoryId(e.target.value);
-    }
-    if (e.target.name == "supplierId") {
-      setSupplierId(e.target.value);
-    }
   };
 
   return (
     <div className="product">
       <h1>Put Product</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="putId"
-          value={putId}
-          onChange={handleInputChange}
-          placeholder="Enter product Id"
-        />
-        <input
-          type="text"
-          name="productName"
-          value={productName}
-          onChange={handleInputChange}
-          placeholder="Enter product name"
-        />
-        <input
-          type="number"
-          name="categoryId"
-          value={categoryId}
-          onChange={handleInputChange}
-          placeholder="Enter category Id"
-        />
-        <input
-          type="text"
-          name="supplierId"
-          value={supplierId}
-          onChange={handleInputChange}
-          placeholder="Enter supplier Id"
-        />
-        <button
-          type="submit"
-          disabled={
-            putProduct.isPending ||
-            (!putId.trim() &&
-              !productName.trim() &&
-              !categoryId.trim() &&
-              !supplierId.trim())
-          }
-        >
-          {putProduct.isPending ? "Updating product" : "Update Product"}{" "}
-        </button>
-      </form>
-
+      {isLoading ? (
+        <p>Loading categories and suppliers...</p>
+      ) : error ? (
+        <p>Error loading options</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="putId"
+            value={putId}
+            onChange={handleInputChange}
+            placeholder="Enter product Id"
+          />
+          <input
+            type="text"
+            name="productName"
+            value={productName}
+            onChange={handleInputChange}
+            placeholder="Enter product name"
+          />
+          <label>Category</label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value="">Select Category</option>
+            {categories.map((w) => (
+              <option key={w.categoryID} value={w.categoryID}>
+                {w.categoryName}
+              </option>
+            ))}
+          </select>
+          <label>Supplier</label>
+          <select
+            value={supplierId}
+            onChange={(e) => setSupplierId(e.target.value)}
+          >
+            <option value="">Select Supplier</option>
+            {suppliers.map((w) => (
+              <option key={w.supplierID} value={w.supplierID}>
+                {w.supplierName}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            disabled={
+              putProduct.isPending ||
+              (!putId.trim() &&
+                !productName.trim() &&
+                !categoryId.trim() &&
+                !supplierId.trim())
+            }
+          >
+            {putProduct.isPending ? "Updating product" : "Update Product"}{" "}
+          </button>
+        </form>
+      )}
       {putProduct.isSuccess && (
         <div>
           <h1>Product Successfully Updated</h1>

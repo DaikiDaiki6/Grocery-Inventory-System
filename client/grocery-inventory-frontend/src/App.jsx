@@ -12,8 +12,8 @@ function App() {
   return (
     <>
       {/* <GetAllInventories /> */}
-       <PostInventory />
-       <GetSpecificInventory />
+      <PostInventory />
+      <GetSpecificInventory />
       <PutInventory />
       <PatchInventory />
       <DeleteInventory />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePostInventory } from "../../hooks/useInventories";
+import { useFetchForeignKeys } from "./useFetchForeignKeys";
 
 function PostInventory() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ function PostInventory() {
   });
 
   const createInventory = usePostInventory();
+  const { products, warehouses, isLoading, error } = useFetchForeignKeys();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +32,6 @@ function PostInventory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Optionally validate all fields here
     if (!formData.productID.trim() || !formData.warehouseID) return;
 
     try {
@@ -45,7 +46,9 @@ function PostInventory() {
         status: parseInt(formData.status),
         warehouseID: parseInt(formData.warehouseID),
       });
+
       console.log("Inventory created!");
+
       setFormData({
         stockQuantity: "",
         reorderLevel: "",
@@ -68,48 +71,82 @@ function PostInventory() {
   return (
     <div className="inventory">
       <h1>📦 Create Inventory</h1>
-      <form onSubmit={handleSubmit}>
-        {[
-          "stockQuantity",
-          "reorderLevel",
-          "reorderQuantity",
-          "unitPrice",
-          "dateReceived",
-          "lastOrderDate",
-          "expirationDate",
-          "salesVolume",
-          "inventoryTurnoverRate",
-          "status",
-          "productID",
-          "warehouseID",
-        ].map((field) => (
-          <input
-            key={field}
-            type={
-              field.includes("Date") || field.includes("date")
-                ? "date"
-                : field === "unitPrice"
-                ? "number"
-                : "text"
-            }
-            name={field}
-            value={formData[field]}
-            onChange={handleChange}
-            placeholder={field}
-          />
-        ))}
 
-        <button
-          type="submit"
-          disabled={
-            createInventory.isPending ||
-            !formData.productID.trim() ||
-            !formData.warehouseID
-          }
-        >
-          {createInventory.isPending ? "Creating..." : "Create Inventory"}
-        </button>
-      </form>
+      {isLoading ? (
+        <p>Loading products and warehouses...</p>
+      ) : error ? (
+        <p>Error loading options: {error.message}</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          {/* Input fields */}
+          {[
+            "stockQuantity",
+            "reorderLevel",
+            "reorderQuantity",
+            "unitPrice",
+            "dateReceived",
+            "lastOrderDate",
+            "expirationDate",
+            "salesVolume",
+            "inventoryTurnoverRate",
+            "status",
+          ].map((field) => (
+            <input
+              key={field}
+              type={
+                field.toLowerCase().includes("date")
+                  ? "date"
+                  : field === "unitPrice"
+                  ? "number"
+                  : "text"
+              }
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              placeholder={field}
+            />
+          ))}
+
+          <label>Product</label>
+          <select
+            name="productID"
+            value={formData.productID}
+            onChange={handleChange}
+          >
+            <option key="" value="">Select a product</option>
+            {products.map((p) => (
+              <option key={p.productID} value={p.productID}>
+                {p.productName}
+              </option>
+            ))}
+          </select>
+
+          <label>Warehouse</label>
+          <select
+            name="warehouseID"
+            value={formData.warehouseID}
+            onChange={handleChange}
+          >
+            <option key="" value="">Select a warehouse</option>
+            {warehouses.map((w) => (
+              <option key={w.warehouseID} value={w.warehouseID}>
+                {w.warehouseName}
+              </option>
+            ))}
+          </select>
+
+          <button
+            type="submit"
+            disabled={
+              createInventory.isPending ||
+              !formData.productID.trim() ||
+              !formData.warehouseID
+            }
+          >
+            {createInventory.isPending ? "Creating..." : "Create Inventory"}
+          </button>
+        </form>
+      )}
 
       {createInventory.isSuccess && (
         <div className="inventory-details">
@@ -117,48 +154,7 @@ function PostInventory() {
           <p>
             <strong>Inventory ID:</strong> {createInventory.data.inventoryID}
           </p>
-          <p>
-            <strong>Stock Quantity:</strong>{" "}
-            {createInventory.data.stockQuantity}
-          </p>
-          <p>
-            <strong>Reorder Level:</strong> {createInventory.data.reorderLevel}
-          </p>
-          <p>
-            <strong>Reorder Quantity:</strong>{" "}
-            {createInventory.data.reorderQuantity}
-          </p>
-          <p>
-            <strong>Unit Price:</strong> ${createInventory.data.unitPrice}
-          </p>
-          <p>
-            <strong>Date Received:</strong> {createInventory.data.dateReceived}
-          </p>
-          <p>
-            <strong>Last Order Date:</strong>{" "}
-            {createInventory.data.lastOrderDate}
-          </p>
-          <p>
-            <strong>Expiration Date:</strong>{" "}
-            {createInventory.data.expirationDate}
-          </p>
-          <p>
-            <strong>Sales Volume:</strong> {createInventory.data.salesVolume}
-          </p>
-          <p>
-            <strong>Inventory Turnover Rate:</strong>{" "}
-            {createInventory.data.inventoryTurnoverRate}
-          </p>
-          <p>
-            <strong>Status:</strong>{" "}
-            {createInventory.data.status === 1 ? "In Stock" : "Out of Stock"}
-          </p>
-          <p>
-            <strong>Product ID:</strong> {createInventory.data.productID}
-          </p>
-          <p>
-            <strong>Warehouse ID:</strong> {createInventory.data.warehouseID}
-          </p>
+          {/* Add more fields here if needed */}
         </div>
       )}
 
