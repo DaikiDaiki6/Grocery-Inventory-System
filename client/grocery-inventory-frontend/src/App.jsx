@@ -1,5 +1,5 @@
 import { useState } from "react";
-import GetAllSuppliers from "./components/Suppliers/GetAllSuppliers";
+import GetAllSuppliers from "./components/Products/GetAllProducts";
 import GetSpecificSupplier from "./components/Suppliers/GetSpecificSupplier";
 import PostSupplier from "./components/Suppliers/PostSupplier";
 import PatchSupplier from "./components/Suppliers/PatchSupplier";
@@ -10,7 +10,7 @@ function App() {
 
   return (
     <>
-      {/* <GetAllSuppliers /> */}
+      {/* <GetAllProducts /> */}
       <GetSpecificSupplier />
       <PostSupplier />
       <PatchSupplier />
