@@ -1,21 +1,22 @@
 import { useState } from "react";
-import GetAllProducts from "./components/Products/GetAllProducts";
-import PostProduct from "./components/Products/PostProduct";
-import GetSpecificProduct from "./components/Products/GetSpecificProduct";
-// import PatchProduct from "./components/Products/PatchProduct";
-import DeleteProduct from "./components/Products/DeleteProduct";
+import GetAllInventories from "./components/Inventories/GetAllInventories";
+import PostInventory from "./components/Inventories/PostInventory";
+import GetSpecificInventory from "./components/Inventories/GetSpecificInventory";
+import PatchInventory from "./components/Inventories/PatchInventory";
+import PutInventory from "./components/Inventories/PutInventory";
+import DeleteInventory from "./components/Inventories/DeleteInventory";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
-      <GetAllProducts />
-      <PostProduct />
-       <GetSpecificProduct />
-      {/*
-      <PatchProduct /> */}
-      <DeleteProduct /> 
+      {/* <GetAllInventories /> */}
+       <PostInventory />
+       <GetSpecificInventory />
+      <PutInventory />
+      <PatchInventory />
+      <DeleteInventory />
     </>
   );
 }
