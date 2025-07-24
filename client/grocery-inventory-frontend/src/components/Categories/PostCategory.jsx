@@ -2,8 +2,7 @@ import { useState } from "react";
 import { usePostCategory } from "../../hooks/useCategories";
 
 function PostCategory() {
-  // const [searchId, setSearchId] = useState("");
-  // const [currentId, setCurrentId] = useState(null);
+
   const [categoryName, setCategoryName] = useState("");
   const createCategory = usePostCategory();
 
