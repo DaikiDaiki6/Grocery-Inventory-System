@@ -4,22 +4,39 @@ using GroceryInventoryAPI.DTOs.Inventory;
 using GroceryInventoryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GroceryInventoryAPI.Controllers;
 
 public class InventoriesController : BaseController
 {
     private readonly GroceryDbContext _dbContext;
+    private readonly ILogger<InventoriesController> _logger;
 
-    public InventoriesController(GroceryDbContext dbContext)
+
+    public InventoriesController(GroceryDbContext dbContext, ILogger<InventoriesController> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
+    /// <summary>
+    /// Gets all inventories.
+    /// </summary>
+    /// <returns>List of inventories</returns>
+    /// <response code="200">Inventories retrieved successfully</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllInventories()
     {
+
+        _logger.LogInformation("Fetching all inventories...");
         var inventories = await _dbContext.Inventories
+            .Include(i => i.Product)
+            .Include(i => i.Warehouse)
+            .OrderBy(p => p.InventoryID)
             .Select(i => new
             {
                 i.InventoryID,
@@ -43,16 +60,30 @@ public class InventoriesController : BaseController
         return Ok(inventories);
     }
 
+    /// <summary>
+    /// Gets a specific inventory by ID
+    /// </summary>
+    /// <param name="id">Inventory ID</param>
+    /// <returns>Inventory object</returns>
+    /// <response code="200">Inventory retrieved successfully</response>
+    /// <response code="404">Inventory not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetSpecificInventory(int id)
     {
+
+        _logger.LogInformation("Fetching inventory with ID {Id}", id);
         var inventory = await _dbContext.Inventories
-            .Include(c => c.Product)
-            .Include(s => s.Warehouse)
-            .FirstOrDefaultAsync(i => i.InventoryID == id);
+        .Include(c => c.Product)
+        .Include(s => s.Warehouse)
+        .FirstOrDefaultAsync(i => i.InventoryID == id);
 
         if (inventory == null)
         {
+            _logger.LogWarning("Inventory with ID {Id} not found.", id);
             return NotFound($"Inventory with ID {id} not found");
         }
 
@@ -73,18 +104,43 @@ public class InventoriesController : BaseController
             {
                 inventory.Product.ProductID,
                 inventory.Product.ProductName
-            }: null,
+            } : null,
             Warehouse = inventory.Warehouse != null ? new
             {
                 inventory.Warehouse.WarehouseID,
                 inventory.Warehouse.WarehouseName
             } : null
         });
+
+
     }
 
+    /// <summary>
+    /// Creates a new inventory record
+    /// </summary>
+    /// <param name="inventoryRequest">Inventory data</param>
+    /// <returns>Created inventory</returns>
+    /// <response code="201">Inventory created successfully</response>
+    /// <response code="400">Invalid input data</response>
+    /// <response code="500">Internal server error</response>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PostInventory([FromBody] PostInventoryRequest inventoryRequest)
     {
+
+        _logger.LogInformation("Creating a new inventory record...");
+
+        if (inventoryRequest.DateReceived == null)
+        {
+            return BadRequest("DateReceived is required.");
+        }
+        if (inventoryRequest.ExpirationDate == null)
+        {
+            return BadRequest("ExpirationDate is required.");
+        }
+
         var newInventory = new Inventory
         {
             StockQuantity = inventoryRequest.StockQuantity,
@@ -105,15 +161,33 @@ public class InventoriesController : BaseController
         await _dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetSpecificInventory), new { id = newInventory.InventoryID }, newInventory);
+
+
     }
 
+    /// <summary>
+    /// Updates an inventory record entirely
+    /// </summary>
+    /// <param name="id">Inventory ID</param>
+    /// <param name="inventoryRequest">Updated inventory data</param>
+    /// <returns>Updated inventory</returns>
+    /// <response code="200">Inventory updated successfully</response>
+    /// <response code="400">Invalid input data</response>
+    /// <response code="404">Inventory not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PutInventory(int id, [FromBody] PutInventoryRequest inventoryRequest)
     {
+
+        _logger.LogInformation("Updating inventory with ID {Id}", id);
         var existingInventory = await _dbContext.Inventories.FindAsync(id);
         if (existingInventory == null)
         {
-            return NotFound();
+            return NotFound($"Inventory with ID {id} not found.");
         }
         existingInventory.StockQuantity = inventoryRequest.StockQuantity;
         existingInventory.ReorderLevel = inventoryRequest.ReorderLevel;
@@ -130,15 +204,32 @@ public class InventoriesController : BaseController
         await _dbContext.SaveChangesAsync();
 
         return Ok(existingInventory);
+
     }
 
+    /// <summary>
+    /// Partially updates an inventory record
+    /// </summary>
+    /// <param name="id">Inventory ID</param>
+    /// <param name="inventoryRequest">Partial inventory data</param>
+    /// <returns>Updated inventory</returns>
+    /// <response code="200">Inventory updated successfully</response>
+    /// <response code="400">Invalid input data</response>
+    /// <response code="404">Inventory not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpPatch("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PatchInventory(int id, [FromBody] PatchInventoryRequest inventoryRequest)
     {
+
+        _logger.LogInformation("Patching inventory with ID {Id}", id);
         var existingInventory = await _dbContext.Inventories.FindAsync(id);
         if (existingInventory == null)
         {
-            return NotFound();
+            return NotFound($"Inventory with ID {id} not found.");
         }
         if (inventoryRequest.StockQuantity.HasValue)
         {
@@ -191,19 +282,37 @@ public class InventoriesController : BaseController
 
         await _dbContext.SaveChangesAsync();
         return Ok(existingInventory);
+
     }
 
+    /// <summary>
+    /// Deletes an inventory by ID
+    /// </summary>
+    /// <param name="id">Inventory ID</param>
+    /// <returns>No content</returns>
+    /// <response code="204">Inventory deleted successfully</response>
+    /// <response code="404">Inventory not found</response>
+    /// <response code="500">Internal server error</response>
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteInventory(int id)
     {
-        var existingInventory = await _dbContext.Inventories.FirstOrDefaultAsync(t => t.InventoryID == id);
 
+        _logger.LogInformation("Deleting inventory with ID {Id}", id);
+
+        var existingInventory = await _dbContext.Inventories.FindAsync(id);
         if (existingInventory == null)
         {
-            return NotFound();
+            _logger.LogWarning("Inventory with ID {Id} not found.", id);
+            return NotFound($"Inventory with ID {id} not found.");
         }
+
         _dbContext.Inventories.Remove(existingInventory);
         await _dbContext.SaveChangesAsync();
+
         return NoContent();
+
     }
 }

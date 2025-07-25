@@ -43,7 +43,7 @@ function PatchSupplier() {
           value={patchId}
           onChange={handleInputChange}
           placeholder="Enter supplier Id (e.g. 00-023-6666)"
-          min="1"
+          min={1}
         />
         <input
           type="text"

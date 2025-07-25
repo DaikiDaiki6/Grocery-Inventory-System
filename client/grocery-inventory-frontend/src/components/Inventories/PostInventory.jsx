@@ -23,10 +23,10 @@ function PostInventory() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (!name.toLowerCase().includes("date")){
+      if(Number(value) < 1) return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -90,22 +90,41 @@ function PostInventory() {
             "salesVolume",
             "inventoryTurnoverRate",
             "status",
-          ].map((field) => (
-            <input
-              key={field}
-              type={
-                field.toLowerCase().includes("date")
-                  ? "date"
-                  : field === "unitPrice"
-                  ? "number"
-                  : "text"
-              }
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-              placeholder={field}
-            />
-          ))}
+          ].map((field) => {
+            if (field === "status") {
+              return (
+                <select
+                  key={field}
+                  name="status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: Number(e.target.value),
+                    }))
+                  }
+                >
+                  <option value="">Select status</option>
+                  <option value="0">Active</option>
+                  <option value="1">BackOrdered</option>
+                  <option value="2">Discontinued</option>
+                </select>
+              );
+            }
+
+            return (
+              <input
+                key={field}
+                type={field.toLowerCase().includes("date") ? "date" : "number"}
+                step={field === "unitPrice" ? "0.01" : undefined}
+                min={field.toLowerCase().includes("date") ? undefined : 1}
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                placeholder={field}
+              />
+            );
+          })}
 
           <label>Product</label>
           <select
@@ -113,7 +132,9 @@ function PostInventory() {
             value={formData.productID}
             onChange={handleChange}
           >
-            <option key="" value="">Select a product</option>
+            <option key="" value="">
+              Select a product
+            </option>
             {products.map((p) => (
               <option key={p.productID} value={p.productID}>
                 {p.productName}
@@ -127,7 +148,9 @@ function PostInventory() {
             value={formData.warehouseID}
             onChange={handleChange}
           >
-            <option key="" value="">Select a warehouse</option>
+            <option key="" value="">
+              Select a warehouse
+            </option>
             {warehouses.map((w) => (
               <option key={w.warehouseID} value={w.warehouseID}>
                 {w.warehouseName}

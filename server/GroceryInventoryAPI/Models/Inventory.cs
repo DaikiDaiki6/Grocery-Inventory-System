@@ -20,7 +20,7 @@ public class Inventory
     public DateOnly? LastOrderDate { get; set; }
     public DateOnly ExpirationDate { get; set; }
     public int SalesVolume { get; set; }
-    public int InventoryTurnoverRate { get; set; }
+    public decimal InventoryTurnoverRate { get; set; }
     public Status Status { get; set; }
 
     // FN

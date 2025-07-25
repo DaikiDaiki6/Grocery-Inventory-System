@@ -43,7 +43,7 @@ function DeleteSupplier() {
             value={deleteId}
             onChange={handleInputChange}
             placeholder="Enter supplier ID"
-            min="1"
+            min={1}
           />
           <button
             type="submit"

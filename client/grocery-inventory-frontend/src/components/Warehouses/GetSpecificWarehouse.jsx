@@ -31,7 +31,7 @@ function GetSpecificWarehouse() {
           value={searchId}
           onChange={handleInputChange}
           placeholder="Enter Warehouse ID..."
-          min="1"
+          min={1}
         />
         <button type="submit" disabled={!searchId.trim()}>
           Search Warehouse

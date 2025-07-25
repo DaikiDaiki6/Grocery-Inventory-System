@@ -24,6 +24,9 @@ function PutInventory() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (!name.toLowerCase().includes("date")){
+      if(Number(value) < 1) return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -44,9 +47,12 @@ function PutInventory() {
 
     const dataToSend = {};
     for (const key in formData) {
-      dataToSend[key] = isNaN(formData[key])
-        ? formData[key]
-        : Number(formData[key]);
+      dataToSend[key] =
+        key === "status" || key === "inventoryTurnoverRate"
+          ? Number(formData[key])
+          : isNaN(formData[key])
+          ? formData[key]
+          : Number(formData[key]);
     }
 
     try {
@@ -98,11 +104,14 @@ function PutInventory() {
           if (key === "productID") {
             return (
               <select
+                key={key}
                 name="productID"
                 value={formData.productID}
                 onChange={handleChange}
               >
-                <option value="">Select a product</option>
+                <option key="" value="">
+                  Select a product
+                </option>
                 {products.map((p) => (
                   <option key={p.productID} value={p.productID}>
                     {p.productName}
@@ -115,6 +124,7 @@ function PutInventory() {
           if (key === "warehouseID") {
             return (
               <select
+                key={key}
                 name="warehouseID"
                 value={formData.warehouseID}
                 onChange={handleChange}
@@ -129,17 +139,30 @@ function PutInventory() {
             );
           }
 
+          if (key === "status") {
+            return (
+              <select
+                key={key}
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="">Select status</option>
+                <option value="0">Active</option>
+                <option value="1">BackOrdered</option>
+                <option value="2">Discontinued</option>
+              </select>
+            );
+          }
+
           return (
             <input
               key={key}
               type={
-                key.includes("Date") || key.includes("date")
-                  ? "date"
-                  : key === "unitPrice"
-                  ? "number"
-                  : "text"
+                key.includes("Date") || key.includes("date") ? "date" : "number"
               }
               step={key === "unitPrice" ? "0.01" : undefined}
+              min={key.toLowerCase().includes("date") ? undefined : 1}
               name={key}
               value={value}
               onChange={handleChange}
@@ -195,7 +218,9 @@ function PutInventory() {
           </p>
           <p>
             <strong>Status:</strong>{" "}
-            {putInventory.data.status === 1 ? "In Stock" : "Out of Stock"}
+            {putInventory.data.status === 0 && "Active"}
+            {putInventory.data.status === 1 && "BackOrdered"}
+            {putInventory.data.status === 2 && "Discontinued"}
           </p>
           <p>
             <strong>Product ID:</strong> {putInventory.data.productID}

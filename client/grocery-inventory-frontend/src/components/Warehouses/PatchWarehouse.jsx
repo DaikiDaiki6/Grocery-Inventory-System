@@ -43,7 +43,7 @@ function PatchWarehouse() {
           value={patchId}
           onChange={handleInputChange}
           placeholder="Enter warehouse Id"
-          min="1"
+          min={1}
         />
         <input
           type="text"

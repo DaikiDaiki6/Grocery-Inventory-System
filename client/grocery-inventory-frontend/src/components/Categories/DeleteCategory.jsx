@@ -43,7 +43,7 @@ function DeleteCategory() {
             value={deleteId}
             onChange={handleInputChange}
             placeholder="Enter category ID"
-            min="1"
+            min={1}
           />
           <button
             type="submit"

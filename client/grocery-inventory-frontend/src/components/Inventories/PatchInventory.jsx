@@ -24,6 +24,9 @@ function PatchInventory() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (!name.toLowerCase().includes("date")){
+      if(Number(value) < 1) return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -92,23 +95,41 @@ function PatchInventory() {
 
           {Object.entries(formData)
             .filter(([key]) => key !== "productID" && key !== "warehouseID")
-            .map(([key, value]) => (
-              <input
-                key={key}
-                type={
-                  key.toLowerCase().includes("date")
-                    ? "date"
-                    : key === "unitPrice"
-                    ? "number"
-                    : "text"
-                }
-                step={key === "unitPrice" ? "0.01" : undefined}
-                name={key}
-                value={value}
-                onChange={handleChange}
-                placeholder={`Enter ${key}`}
-              />
-            ))}
+            .map(([key, value]) => {
+              if (key === "status") {
+                return (
+                  <select
+                    key={key}
+                    name="status"
+                    value={value}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        status: Number(e.target.value),
+                      }))
+                    }
+                  >
+                    <option value="">Select status</option>
+                    <option value="0">Active</option>
+                    <option value="1">BackOrdered</option>
+                    <option value="2">Discontinued</option>
+                  </select>
+                );
+              }
+
+              return (
+                <input
+                  key={key}
+                  type={key.toLowerCase().includes("date") ? "date" : "number"}
+                  min={key.toLowerCase().includes("date") ? undefined : 1}
+                  step={key === "unitPrice" ? "0.01" : undefined}
+                  name={key}
+                  value={value}
+                  onChange={handleChange}
+                  placeholder={`Enter ${key}`}
+                />
+              );
+            })}
 
           <label>Product</label>
           <select
@@ -146,7 +167,9 @@ function PatchInventory() {
             type="submit"
             disabled={patchInventory.isPending || !inventoryId.trim()}
           >
-            {patchInventory.isPending ? "Updating inventory..." : "Update Inventory"}
+            {patchInventory.isPending
+              ? "Updating inventory..."
+              : "Update Inventory"}
           </button>
         </form>
       )}
@@ -154,19 +177,52 @@ function PatchInventory() {
       {patchInventory.isSuccess && (
         <div className="inventory-details">
           <h1>✅ Inventory Updated</h1>
-          <p><strong>Inventory ID:</strong> {patchInventory.data.inventoryID}</p>
-          <p><strong>Stock Quantity:</strong> {patchInventory.data.stockQuantity}</p>
-          <p><strong>Reorder Level:</strong> {patchInventory.data.reorderLevel}</p>
-          <p><strong>Reorder Quantity:</strong> {patchInventory.data.reorderQuantity}</p>
-          <p><strong>Unit Price:</strong> ${patchInventory.data.unitPrice}</p>
-          <p><strong>Date Received:</strong> {patchInventory.data.dateReceived}</p>
-          <p><strong>Last Order Date:</strong> {patchInventory.data.lastOrderDate}</p>
-          <p><strong>Expiration Date:</strong> {patchInventory.data.expirationDate}</p>
-          <p><strong>Sales Volume:</strong> {patchInventory.data.salesVolume}</p>
-          <p><strong>Inventory Turnover Rate:</strong> {patchInventory.data.inventoryTurnoverRate}</p>
-          <p><strong>Status:</strong> {patchInventory.data.status === 1 ? "In Stock" : "Out of Stock"}</p>
-          <p><strong>Product ID:</strong> {patchInventory.data.productID}</p>
-          <p><strong>Warehouse ID:</strong> {patchInventory.data.warehouseID}</p>
+          <p>
+            <strong>Inventory ID:</strong> {patchInventory.data.inventoryID}
+          </p>
+          <p>
+            <strong>Stock Quantity:</strong> {patchInventory.data.stockQuantity}
+          </p>
+          <p>
+            <strong>Reorder Level:</strong> {patchInventory.data.reorderLevel}
+          </p>
+          <p>
+            <strong>Reorder Quantity:</strong>{" "}
+            {patchInventory.data.reorderQuantity}
+          </p>
+          <p>
+            <strong>Unit Price:</strong> ${patchInventory.data.unitPrice}
+          </p>
+          <p>
+            <strong>Date Received:</strong> {patchInventory.data.dateReceived}
+          </p>
+          <p>
+            <strong>Last Order Date:</strong>{" "}
+            {patchInventory.data.lastOrderDate}
+          </p>
+          <p>
+            <strong>Expiration Date:</strong>{" "}
+            {patchInventory.data.expirationDate}
+          </p>
+          <p>
+            <strong>Sales Volume:</strong> {patchInventory.data.salesVolume}
+          </p>
+          <p>
+            <strong>Inventory Turnover Rate:</strong>{" "}
+            {patchInventory.data.inventoryTurnoverRate}
+          </p>
+          <p>
+            <strong>Status:</strong>{" "}
+            {patchInventory.data.status === 0 && "Active"}
+            {patchInventory.data.status === 1 && "BackOrdered"}
+            {patchInventory.data.status === 2 && "Discontinued"}
+          </p>
+          <p>
+            <strong>Product ID:</strong> {patchInventory.data.productID}
+          </p>
+          <p>
+            <strong>Warehouse ID:</strong> {patchInventory.data.warehouseID}
+          </p>
         </div>
       )}
     </div>

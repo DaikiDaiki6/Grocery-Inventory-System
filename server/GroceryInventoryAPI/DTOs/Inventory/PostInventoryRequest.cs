@@ -28,7 +28,7 @@ public class PostInventoryRequest
     public int SalesVolume { get; set; }
     [Required(ErrorMessage = "Inventory turnover rate is required")]
     [Range(0, int.MaxValue, ErrorMessage = "Inventory turnover rate must be 0 or greater")]
-    public int InventoryTurnoverRate { get; set; }
+    public decimal InventoryTurnoverRate { get; set; }
     [Required(ErrorMessage = "Status is required")]
     [Range(0, 2, ErrorMessage = "Status must be 0 (Active), 1 (BackOrdered), or 2 (Discontinued)")]
     public Status Status { get; set; }

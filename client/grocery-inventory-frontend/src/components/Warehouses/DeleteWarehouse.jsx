@@ -14,16 +14,16 @@ function DeleteWarehouse() {
 
   const handleConfirmDelete = async () => {
     try {
-        await deleteWarehouse.mutateAsync(parseInt(deleteId));
-        setDeleteId("");
-        setShowConfirmation(false);
-        console.log("Warehouse deleted successfully!");
+      await deleteWarehouse.mutateAsync(parseInt(deleteId));
+      setDeleteId("");
+      setShowConfirmation(false);
+      console.log("Warehouse deleted successfully!");
     } catch (error) {
-        console.error("Failed to delete warehouse", error);
+      console.error("Failed to delete warehouse", error);
     }
   };
 
-  const handleCancelDelete = () =>{
+  const handleCancelDelete = () => {
     setShowConfirmation(false);
   };
 
@@ -43,7 +43,7 @@ function DeleteWarehouse() {
             value={deleteId}
             onChange={handleInputChange}
             placeholder="Enter warehouse ID"
-            min="1"
+            min={1}
           />
           <button
             type="submit"

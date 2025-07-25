@@ -31,7 +31,7 @@ function GetSpecificInventory() {
           value={searchId}
           onChange={handleInputChange}
           placeholder="Enter Inventory ID..."
-          min="1"
+          min={1}
         />
         <button type="submit" disabled={!searchId.trim()}>
           Search Inventory

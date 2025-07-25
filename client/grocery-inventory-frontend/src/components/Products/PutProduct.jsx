@@ -76,7 +76,7 @@ function PutProduct() {
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
           >
-            <option value="">Select Category</option>
+            <option key="" value="">Select Category</option>
             {categories.map((w) => (
               <option key={w.categoryID} value={w.categoryID}>
                 {w.categoryName}
@@ -88,7 +88,7 @@ function PutProduct() {
             value={supplierId}
             onChange={(e) => setSupplierId(e.target.value)}
           >
-            <option value="">Select Supplier</option>
+            <option key="" value="">Select Supplier</option>
             {suppliers.map((w) => (
               <option key={w.supplierID} value={w.supplierID}>
                 {w.supplierName}

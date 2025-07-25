@@ -43,7 +43,7 @@ function PatchCategory() {
           value={patchId}
           onChange={handleInputChange}
           placeholder="Enter category Id"
-          min="1"
+          min={1}
         />
         <input
           type="text"
@@ -52,8 +52,13 @@ function PatchCategory() {
           onChange={handleInputChange}
           placeholder="Enter category name"
         />
-        <button type="submit" disabled={patchCategory.isPending || (!patchId.trim() || !categoryName.trim())}>
-            {patchCategory.isPending ? "Patching..." : "Patch Category"}
+        <button
+          type="submit"
+          disabled={
+            patchCategory.isPending || !patchId.trim() || !categoryName.trim()
+          }
+        >
+          {patchCategory.isPending ? "Patching..." : "Patch Category"}
         </button>
       </form>
 
@@ -69,7 +74,6 @@ function PatchCategory() {
           )}
         </div>
       )}
-
 
       {patchCategory.isError && (
         <div className="category-error">

@@ -31,7 +31,7 @@ function GetSpecificCategory() {
           value={searchId}
           onChange={handleInputChange}
           placeholder="Enter Category ID..."
-          min="1"
+          min={1}
         />
         <button type="submit" disabled={!searchId.trim()}>
           Search Category
@@ -41,7 +41,12 @@ function GetSpecificCategory() {
       {currentId && (
         <div className="category-details">
           {isLoading && <p>Loading category...</p>}
-          {error && <p>Error Loading category: {error.message || error.response?.data?.title }</p>}
+          {error && (
+            <p>
+              Error Loading category:{" "}
+              {error.message || error.response?.data?.title}
+            </p>
+          )}
 
           {!isLoading && !error && category && (
             <div className="category-info">

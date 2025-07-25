@@ -73,7 +73,7 @@ function PostProduct() {
           />
           <label>Category</label>
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">Select Category</option>
+            <option key="" value="">Select Category</option>
             {categories.map((w) => (
               <option key={w.categoryID} value={w.categoryID}>
                 {w.categoryName}
@@ -82,7 +82,7 @@ function PostProduct() {
           </select>
           <label>Supplier</label>
           <select value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-            <option value="">Select Supplier</option>
+            <option key="" value="">Select Supplier</option>
             {suppliers.map((w) => (
               <option key={w.supplierID} value={w.supplierID}>
                 {w.supplierName}

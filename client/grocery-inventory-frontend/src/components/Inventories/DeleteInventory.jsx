@@ -43,7 +43,7 @@ function DeleteInventory() {
             value={deleteId}
             onChange={handleInputChange}
             placeholder="Enter inventory ID"
-            min="1"
+            min={1}
           />
           <button
             type="submit"
