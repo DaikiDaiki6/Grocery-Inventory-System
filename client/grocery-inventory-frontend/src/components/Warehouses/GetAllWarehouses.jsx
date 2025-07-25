@@ -13,21 +13,31 @@ function GetAllWarehouses() {
 
   return (
     <div className="warehouses">
-      <h1>📦 Warehouses</h1>
+      <h1>🏬 All Warehouses</h1>
 
       <div className="list">
-        {warehouses?.length === 0 ? (
-          <p>No warehouses found in the database.</p>
-        ) : (
-          warehouses?.map((warehouse) => (
-            <div key={warehouse.warehouseID} className="list-item">
-              <div>
-                <strong>ID:</strong> {warehouse.warehouseID}
-                <strong> Name: </strong> {warehouse.warehouseName}
-              </div>
-            </div>
-          ))
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Warehouse Name</th>
+              <th>ID</th>
+            </tr>
+          </thead>
+          {warehouses?.length === 0 ? (
+            <p>No warehouses found in the database.</p>
+          ) : (
+            warehouses?.map((warehouse) => (
+              <tbody key={warehouse.warehouseID}>
+                <tr>
+                  <td>
+                    <strong>{warehouse.warehouseName}</strong>
+                  </td>
+                  <td>{warehouse.warehouseID}</td>
+                </tr>
+              </tbody>
+            ))
+          )}
+        </table>
       </div>
     </div>
   );

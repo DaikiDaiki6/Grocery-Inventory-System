@@ -4,6 +4,7 @@ import { useDeleteSupplier } from "../../hooks/useSuppliers";
 function DeleteSupplier() {
   const [deleteId, setDeleteId] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [errorID, setErrorID] = useState("");
   const deleteSupplier = useDeleteSupplier();
 
   const handleSubmit = (e) => {
@@ -29,6 +30,13 @@ function DeleteSupplier() {
 
   const handleInputChange = (e) => {
     setDeleteId(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value.length !== 11) {
+      setErrorID("⚠️ ID must be exactly 11 characters");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
@@ -45,6 +53,7 @@ function DeleteSupplier() {
             placeholder="Enter supplier ID"
             min={1}
           />
+          {errorID && <div className="error-details">{errorID}</div>}
           <button
             type="submit"
             disabled={deleteSupplier.isPending || !deleteId.trim()}

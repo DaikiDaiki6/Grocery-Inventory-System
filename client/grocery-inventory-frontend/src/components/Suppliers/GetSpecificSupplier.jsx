@@ -4,6 +4,7 @@ import { useGetSpecificSupplier } from "../../hooks/useSuppliers";
 function GetSpecificSupplier() {
   const [searchId, setSearchId] = useState("");
   const [currentId, setCurrentId] = useState(null);
+  const [errorID, setErrorID] = useState("");
   const {
     data: supplier,
     isLoading,
@@ -19,11 +20,18 @@ function GetSpecificSupplier() {
 
   const handleInputChange = (e) => {
     setSearchId(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value.length !== 11) {
+      setErrorID("⚠️ ID must be exactly 11 characters");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
     <div className="supplier">
-      <h1>🏬 Search Supplier</h1>
+      <h1>🚚🔍 Search Supplier</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -31,8 +39,10 @@ function GetSpecificSupplier() {
           value={searchId}
           onChange={handleInputChange}
           placeholder="Enter Supplier ID..."
-          min={1}
+          minLength={11}
+          maxLength={11}
         />
+        {errorID && <div className="error-details">{errorID}</div>}
         <button type="submit" disabled={!searchId.trim()}>
           Search Supplier
         </button>

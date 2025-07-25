@@ -4,6 +4,7 @@ import { useGetSpecificWarehouse } from "../../hooks/useWarehouses";
 function GetSpecificWarehouse() {
   const [searchId, setSearchId] = useState("");
   const [currentId, setCurrentId] = useState(null);
+  const [errorID, setErrorID] = useState("");
   const {
     data: warehouse,
     isLoading,
@@ -19,11 +20,18 @@ function GetSpecificWarehouse() {
 
   const handleInputChange = (e) => {
     setSearchId(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value <= 0) {
+      setErrorID("⚠️ ID must be 1 or greater.");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
     <div className="warehouse">
-      <h1>🏬 Search Warehouse</h1>
+      <h1>🏬🔍 Search Warehouse</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="number"
@@ -33,6 +41,7 @@ function GetSpecificWarehouse() {
           placeholder="Enter Warehouse ID..."
           min={1}
         />
+        {errorID && <div className="error-details"> {errorID}</div>}
         <button type="submit" disabled={!searchId.trim()}>
           Search Warehouse
         </button>
@@ -51,13 +60,23 @@ function GetSpecificWarehouse() {
           )}
 
           {!isLoading && !error && warehouse && (
-            <div className="category-info">
-              <p>
-                <strong>ID:</strong> {warehouse.warehouseID}
-              </p>
-              <p>
-                <strong>Name:</strong> {warehouse.warehouseName}
-              </p>
+            <div className="warehouse-info">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Warehouse Name</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>{warehouse.warehouseName}</strong>
+                    </td>
+                    <td>{warehouse.warehouseID}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </div>

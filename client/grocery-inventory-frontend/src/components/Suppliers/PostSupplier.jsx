@@ -3,7 +3,9 @@ import { usePostSupplier } from "../../hooks/useSuppliers";
 
 function PostSupplier() {
   const [supplierName, setSupplierName] = useState("");
-  const [supplierId, setSupplierId] = useState("");
+  const [supplierID, setSupplierID] = useState("");
+  const [errorID, setErrorID] = useState("");
+  const [errorName, setErrorName] = useState("");
   const postSupplier = usePostSupplier();
 
   const handleSubmit = async (e) => {
@@ -11,10 +13,10 @@ function PostSupplier() {
     if (supplierName === "") return;
     try {
       await postSupplier.mutateAsync({
-        supplierID: supplierId,
+        supplierID: supplierID,
         supplierName: supplierName,
       });
-      setSupplierId("");
+      setSupplierID("");
       setSupplierName("");
       console.log("Supplier created successfully!");
     } catch (error) {
@@ -23,32 +25,54 @@ function PostSupplier() {
   };
 
   const handleInputChange = (e) => {
-    if (e.target.name == "supplierId"){
-        setSupplierId(e.target.value);
+    if (e.target.name == "supplierId") {
+      setSupplierID(e.target.value);
+      if (e.target.value === "") {
+        setErrorID("");
+      } else if (e.target.value.length !== 11) {
+        setErrorID("⚠️ ID must be exactly 11 characters");
+      } else {
+        setErrorID("");
+      }
     }
-    if (e.target.name == "supplierName"){
-        setSupplierName(e.target.value);
+    if (e.target.name == "supplierName") {
+      setSupplierName(e.target.value);
+      if (e.target.value === "") {
+        setErrorName("");
+      } else if (e.target.value.length < 2) {
+        setErrorName("⚠️ Name must be at least 2 characters");
+      } else if (e.target.value.length > 100) {
+        setErrorName("⚠️ Name cannot exceed 100 characters");
+      } else {
+        setErrorName("");
+      }
     }
   };
 
   return (
     <div className="supplier">
-      <h1>📦 Create Supplier</h1>
+      <h1>➕ Create Supplier</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           name="supplierId"
-          value={supplierId}
+          value={supplierID}
+          minLength={11}
+          maxLength={11}
           onChange={handleInputChange}
           placeholder="Enter supplier ID..."
         />
+        {errorID && <div className="error-details">{errorID}</div>}
         <input
           type="text"
           name="supplierName"
+          minLength={2}
+          maxLength={100}
           value={supplierName}
           onChange={handleInputChange}
           placeholder="Enter supplier name..."
         />
+        {errorName && <div className="error-details">{errorName}</div>}
         <button
           type="submit"
           disabled={postSupplier.isPending || supplierName === ""}
@@ -59,13 +83,24 @@ function PostSupplier() {
 
       {postSupplier.isSuccess && (
         <div className="supplier-details">
-          <h1>Supplier Details</h1>
-          <p>✅ Supplier created successfully!</p>
+          <strong>✅ Supplier created successfully!</strong>
           {postSupplier.data && (
-            <p>
-              Created: {postSupplier.data.supplierName} (ID:{" "}
-              {postSupplier.data.supplierID})
-            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Supplier Name</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{postSupplier.data.supplierName}</strong>
+                  </td>
+                  <td>{postSupplier.data.supplierID}</td>
+                </tr>
+              </tbody>
+            </table>
           )}
         </div>
       )}
@@ -75,8 +110,7 @@ function PostSupplier() {
           <h1>Supplier error</h1>
           <p>
             Error in creating supplier:{" "}
-            {postSupplier.error?.response?.data ||
-              postSupplier.error?.message}
+            {postSupplier.error?.response?.data || postSupplier.error?.message}
           </p>
         </div>
       )}

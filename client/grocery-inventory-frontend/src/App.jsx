@@ -32,29 +32,28 @@ import PatchWarehouse from "./components/Warehouses/PatchWarehouse";
 import DeleteWarehouse from "./components/Warehouses/DeleteWarehouse";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-      {/* <GetAllCategories /> */}
+      {/* <GetAllCategories />
       <PostCategory />
       <GetSpecificCategory />
       <PatchCategory />
-      <DeleteCategory />
+      <DeleteCategory /> */}
 
-      {/* <GetAllInventories /> */}
+      {/* <GetAllInventories />
       <PostInventory />
       <GetSpecificInventory />
       <PutInventory />
       <PatchInventory />
-      <DeleteInventory />
+      <DeleteInventory /> */}
 
-      {/* <GetAllProducts /> */}
+      {/* <GetAllProducts />
       <PostProduct />
       <GetSpecificProduct />
       <PutProduct />
       <PatchProduct />
-      <DeleteProduct />
+      <DeleteProduct /> */}
 
       {/* <GetAllSuppliers /> */}
       <PostSupplier />
@@ -62,11 +61,11 @@ function App() {
       <PatchSupplier />
       <DeleteSupplier />
 
-      {/* <GetAllWarehouses /> */}
+      {/* <GetAllWarehouses />
       <PostWarehouse />
       <GetSpecificWarehouse />
       <PatchWarehouse />
-      <DeleteWarehouse />
+      <DeleteWarehouse /> */}
     </>
   );
 }

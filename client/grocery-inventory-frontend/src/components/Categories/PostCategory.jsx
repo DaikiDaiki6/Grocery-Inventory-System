@@ -2,8 +2,8 @@ import { useState } from "react";
 import { usePostCategory } from "../../hooks/useCategories";
 
 function PostCategory() {
-
   const [categoryName, setCategoryName] = useState("");
+  const [errorName, setErrorName] = useState("");
   const createCategory = usePostCategory();
 
   const handleSubmit = async (e) => {
@@ -22,11 +22,20 @@ function PostCategory() {
 
   const handleInputChange = (e) => {
     setCategoryName(e.target.value);
+    if (e.target.value === "") {
+      setErrorName("");
+    } else if (e.target.value.length < 2) {
+      setErrorName("⚠️ Name must be at least 2 characters");
+    } else if (e.target.value.length > 100) {
+      setErrorName("⚠️ Name cannot exceed 100 characters");
+    } else {
+      setErrorName("");
+    }
   };
 
   return (
     <div className="category">
-      <h1>📦 Create Category</h1>
+      <h1>➕ Create Category</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -36,10 +45,13 @@ function PostCategory() {
         <input
           type="text"
           name="categoryName"
+          minLength={2}
+          maxLength={100}
           value={categoryName}
           onChange={handleInputChange}
-          placeholder="Enter category name..."
+          placeholder="Enter Category Name (eg. Milk)"
         />
+        {errorName && <div className="error-details">{errorName}</div>}
         <button
           type="submit"
           disabled={createCategory.isPending || !categoryName.trim()}
@@ -50,13 +62,24 @@ function PostCategory() {
 
       {createCategory.isSuccess && (
         <div className="category-details">
-          <h1>Category Details</h1>
-          <p>✅ Category created successfully!</p>
+          <strong>✅ Category created successfully!</strong>
           {createCategory.data && (
-            <p>
-              Created: {createCategory.data.categoryName} (ID:{" "}
-              {createCategory.data.categoryID})
-            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Category Name</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{createCategory.data.categoryName}</strong>
+                  </td>
+                  <td>{createCategory.data.categoryID}</td>
+                </tr>
+              </tbody>
+            </table>
           )}
         </div>
       )}

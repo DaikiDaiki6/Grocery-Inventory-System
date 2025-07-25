@@ -2,20 +2,21 @@ import { useState } from "react";
 import { useDeleteCategory } from "../../hooks/useCategories";
 
 function DeleteCategory() {
-  const [deleteId, setDeleteId] = useState("");
+  const [categoryID, setCategoryID] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [errorID, setErrorID] = useState("");
   const deleteCategory = useDeleteCategory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!deleteId.trim()) return;
+    if (!categoryID.trim()) return;
     setShowConfirmation(true);
   };
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteCategory.mutateAsync(parseInt(deleteId));
-      setDeleteId("");
+      await deleteCategory.mutateAsync(parseInt(categoryID));
+      setCategoryID("");
       setShowConfirmation(false);
       console.log("Category deleted successfully!");
     } catch (error) {
@@ -28,11 +29,18 @@ function DeleteCategory() {
   };
 
   const handleInputChange = (e) => {
-    setDeleteId(e.target.value);
+    setCategoryID(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value <= 0) {
+      setErrorID("⚠️ ID must be 1 or greater.");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
-    <div className="category">
+    <div className="component-main-div">
       <h1>🗑️ Delete Category</h1>
 
       {!showConfirmation ? (
@@ -40,14 +48,15 @@ function DeleteCategory() {
           <input
             type="number"
             name="deleteId"
-            value={deleteId}
+            value={categoryID}
             onChange={handleInputChange}
-            placeholder="Enter category ID"
+            placeholder="Enter category ID (eg. 12)"
             min={1}
           />
+          {errorID && <div className="error-details">{errorID}</div>}
           <button
             type="submit"
-            disabled={deleteCategory.isPending || !deleteId.trim()}
+            disabled={deleteCategory.isPending || !categoryID.trim()}
           >
             Delete Category
           </button>
@@ -57,7 +66,7 @@ function DeleteCategory() {
           <h2>⚠️ Confirm Deletion</h2>
           <p>
             Are you sure you want to delete category with ID{" "}
-            <strong>{deleteId}</strong>?
+            <strong>{categoryID}</strong>?
           </p>
           <p style={{ color: "red" }}>This action cannot be undone!</p>
           <div className="button-group">

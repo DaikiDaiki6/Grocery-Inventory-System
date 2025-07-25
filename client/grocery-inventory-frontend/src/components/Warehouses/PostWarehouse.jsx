@@ -3,6 +3,7 @@ import { usePostWarehouse } from "../../hooks/useWarehouses";
 
 function PostWarehouse() {
   const [warehouseName, setWarehouseName] = useState("");
+  const [errorName, setErrorName] = useState("");
   const postWarehouse = usePostWarehouse();
 
   const handleSubmit = async (e) => {
@@ -21,11 +22,20 @@ function PostWarehouse() {
 
   const handleInputChange = (e) =>{
     setWarehouseName(e.target.value);
+     if (e.target.value === "") {
+      setErrorName("");
+    } else if (e.target.value.length < 2) {
+      setErrorName("⚠️ Name must be at least 2 characters");
+    } else if (e.target.value.length > 100) {
+      setErrorName("⚠️ Name cannot exceed 150 characters");
+    } else {
+      setErrorName("");
+    }
   }
 
   return(
     <div className="warehouse">
-      <h1>📦 Create Warehouse</h1>
+      <h1>➕ Create Warehouse</h1>
     <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -35,10 +45,13 @@ function PostWarehouse() {
         <input
           type="text"
           name="warehouseName"
+          minLength={2}
+          maxLength={100}
           value={warehouseName}
           onChange={handleInputChange}
           placeholder="Enter warehouse name..."
         />
+        {errorName && <div className="error-details">{errorName}</div>}
         <button
           type="submit"
           disabled={postWarehouse.isPending || warehouseName == ""}
@@ -49,13 +62,24 @@ function PostWarehouse() {
 
       {postWarehouse.isSuccess && (
         <div className="warehouse-details">
-          <h1>Warehouse Details</h1>
           <p>✅ Warehouse created successfully!</p>
           {postWarehouse.data && (
-            <p>
-              Created: {postWarehouse.data.warehouseName} (ID:{" "}
-              {postWarehouse.data.warehouseID})
-            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Warehouse Name</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{postWarehouse.data.warehouseName}</strong>
+                  </td>
+                  <td>{postWarehouse.data.warehouseID}</td>
+                </tr>
+              </tbody>
+            </table>
           )}
         </div>
       )}

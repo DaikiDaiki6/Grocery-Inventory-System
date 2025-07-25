@@ -2,21 +2,23 @@ import { useState } from "react";
 import { usePatchCategory } from "../../hooks/useCategories";
 
 function PatchCategory() {
-  const [patchId, setPatchId] = useState("");
+  const [categoryID, setCategoryID] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const [errorID, setErrorID] = useState("");
   const patchCategory = usePatchCategory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!patchId.trim() || !categoryName.trim()) return;
+    if (!categoryID.trim() || !categoryName.trim()) return;
     try {
       await patchCategory.mutateAsync({
-        id: parseInt(patchId),
+        id: parseInt(categoryID),
         data: {
           categoryName: categoryName.trim(),
         },
       });
-      setPatchId("");
+      setCategoryID("");
       setCategoryName("");
       console.log("Category patched successfully!");
     } catch (error) {
@@ -27,35 +29,57 @@ function PatchCategory() {
   const handleInputChange = (e) => {
     if (e.target.name == "categoryName") {
       setCategoryName(e.target.value);
+      if (e.target.value === "") {
+        setErrorName("");
+      } else if (e.target.value.length < 2) {
+        setErrorName("⚠️ Name must be at least 2 characters");
+      } else if (e.target.value.length > 100) {
+        setErrorName("⚠️ Name cannot exceed 100 characters");
+      } else {
+        setErrorName("");
+      }
     }
-    if (e.target.name == "patchId") {
-      setPatchId(e.target.value);
+    if (e.target.name == "categoryID") {
+      setCategoryID(e.target.value);
+      if (e.target.value === "") {
+        setErrorID("");
+      } else if (e.target.value <= 0) {
+        setErrorID("⚠️ ID must be 1 or greater.");
+      } else {
+        setErrorID("");
+      }
     }
   };
 
   return (
     <div className="category">
-      <h1>📦 Patch Category</h1>
+      <h1>✏️ Patch Category</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="number"
-          name="patchId"
-          value={patchId}
+          name="categoryID"
+          value={categoryID}
           onChange={handleInputChange}
-          placeholder="Enter category Id"
+          placeholder="Enter Category ID (eg. 12)"
           min={1}
         />
+        {errorID && <div className="error-details">{errorID}</div>}
         <input
           type="text"
           name="categoryName"
+          minLength={2}
+          maxLength={100}
           value={categoryName}
           onChange={handleInputChange}
-          placeholder="Enter category name"
+          placeholder="Enter Category Name (eg. Milk)"
         />
+        {errorName && <div className="error-details">{errorName}</div>}
         <button
           type="submit"
           disabled={
-            patchCategory.isPending || !patchId.trim() || !categoryName.trim()
+            patchCategory.isPending ||
+            !categoryID.trim() ||
+            !categoryName.trim()
           }
         >
           {patchCategory.isPending ? "Patching..." : "Patch Category"}
@@ -64,13 +88,24 @@ function PatchCategory() {
 
       {patchCategory.isSuccess && (
         <div className="category-details">
-          <h1>Category Details</h1>
-          <p>✅ Category updated successfully!</p>
+          <strong>✅ Category updated successfully!</strong>
           {patchCategory.data && (
-            <p>
-              Updated: {patchCategory.data.categoryName} (ID:{" "}
-              {patchCategory.data.categoryID})
-            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Category Name</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{patchCategory.data.categoryName}</strong>
+                  </td>
+                  <td>{patchCategory.data.categoryID}</td>
+                </tr>
+              </tbody>
+            </table>
           )}
         </div>
       )}

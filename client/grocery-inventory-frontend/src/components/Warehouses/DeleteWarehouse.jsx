@@ -2,20 +2,21 @@ import { useState } from "react";
 import { useDeleteWarehouse } from "../../hooks/useWarehouses";
 
 function DeleteWarehouse() {
-  const [deleteId, setDeleteId] = useState("");
+  const [warehouseID, setWarehouseID] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [errorID, setErrorID] = useState("");
   const deleteWarehouse = useDeleteWarehouse();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!deleteId.trim()) return;
+    if (!warehouseID.trim()) return;
     setShowConfirmation(true);
   };
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteWarehouse.mutateAsync(parseInt(deleteId));
-      setDeleteId("");
+      await deleteWarehouse.mutateAsync(parseInt(warehouseID));
+      setWarehouseID("");
       setShowConfirmation(false);
       console.log("Warehouse deleted successfully!");
     } catch (error) {
@@ -28,7 +29,14 @@ function DeleteWarehouse() {
   };
 
   const handleInputChange = (e) => {
-    setDeleteId(e.target.value);
+    setWarehouseID(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value <= 0) {
+      setErrorID("⚠️ ID must be 1 or greater.");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
@@ -40,14 +48,15 @@ function DeleteWarehouse() {
           <input
             type="number"
             name="deleteId"
-            value={deleteId}
+            value={warehouseID}
             onChange={handleInputChange}
             placeholder="Enter warehouse ID"
             min={1}
           />
+          {errorID && <div className="error-details">{errorID}</div>}
           <button
             type="submit"
-            disabled={deleteWarehouse.isPending || !deleteId.trim()}
+            disabled={deleteWarehouse.isPending || !warehouseID.trim()}
           >
             Delete Warehouse
           </button>
@@ -57,7 +66,7 @@ function DeleteWarehouse() {
           <h2>⚠️ Confirm Deletion</h2>
           <p>
             Are you sure you want to delete warehouse with ID{" "}
-            <strong>{deleteId}</strong>?
+            <strong>{warehouseID}</strong>?
           </p>
           <p style={{ color: "red" }}>This action cannot be undone!</p>
           <div className="button-group">

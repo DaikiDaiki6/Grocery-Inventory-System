@@ -12,22 +12,31 @@ function GetAllCategories() {
   }
 
   return (
-    <div className="categories">
-      <h1>📦 Categories</h1>
+    <div className="component-main-div">
+      <h1>📦 All Categories</h1>
 
       <div className="list">
-        {categories?.length === 0 ? (
-          <p>No categories found in the database.</p>
-        ) : (
-          categories?.map((category) => (
-            <div key={category.categoryID} className="list-item">
-              <div>
-                <strong>ID:</strong> {category.categoryID}
-                <strong> Name: </strong> {category.categoryName}
-              </div>
-            </div>
-          ))
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Category Name</th>
+              <th>ID</th>
+            </tr>
+          </thead>
+          {categories?.length === 0 ? (
+            <p>No categories found in the database.</p>
+          ) : (
+            categories?.map((category) => (
+              <tbody key={category.categoryID}>
+                <tr> 
+                  <td><strong>{category.categoryName}</strong></td>
+                  <td>{category.categoryID}</td>
+                </tr>
+                
+              </tbody>
+            ))
+          )}
+        </table>
       </div>
     </div>
   );

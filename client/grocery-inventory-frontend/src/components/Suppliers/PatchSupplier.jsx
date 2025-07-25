@@ -2,21 +2,23 @@ import { useState } from "react";
 import { usePatchSupplier } from "../../hooks/useSuppliers";
 
 function PatchSupplier() {
-  const [patchId, setPatchId] = useState("");
+  const [supplierID, setSupplierID] = useState("");
   const [supplierName, setSupplierName] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const [errorID, setErrorID] = useState("");
   const patchSupplier = usePatchSupplier();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!patchId.trim() || supplierName === "") return;
+    if (!supplierID.trim() || supplierName === "") return;
     try {
       await patchSupplier.mutateAsync({
-        id: patchId,
+        id: supplierID,
         data: {
           supplierName: supplierName,
         },
       });
-      setPatchId("");
+      setSupplierID("");
       setSupplierName("");
       console.log("Supplier patched successfully!");
     } catch (error) {
@@ -27,35 +29,56 @@ function PatchSupplier() {
   const handleInputChange = (e) => {
     if (e.target.name === "supplierName") {
       setSupplierName(e.target.value);
+      if (e.target.value === "") {
+        setErrorName("");
+      } else if (e.target.value.length < 2) {
+        setErrorName("⚠️ Name must be at least 2 characters");
+      } else if (e.target.value.length > 100) {
+        setErrorName("⚠️ Name cannot exceed 100 characters");
+      } else {
+        setErrorName("");
+      }
     }
-    if (e.target.name === "patchId") {
-      setPatchId(e.target.value);
+    if (e.target.name === "supplierID") {
+      setSupplierID(e.target.value);
+      if (e.target.value === "") {
+        setErrorID("");
+      } else if (e.target.value.length !== 11) {
+        setErrorID("⚠️ ID must be exactly 11 characters");
+      } else {
+        setErrorID("");
+      }
     }
   };
 
   return (
     <div className="supplier">
-      <h1>📦 Patch Supplier</h1>
+      <h1>✏️ Patch Supplier</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          name="patchId"
-          value={patchId}
+          name="supplierID"
+          value={supplierID}
           onChange={handleInputChange}
           placeholder="Enter supplier Id (e.g. 00-023-6666)"
-          min={1}
+          minLength={11}
+          maxLength={11}
         />
+        {errorID && <div className="error-details">{errorID}</div>}
         <input
           type="text"
           name="supplierName"
+          minLength={2}
+          maxLength={100}
           value={supplierName}
           onChange={handleInputChange}
           placeholder="Enter supplier name"
         />
+        {errorName && <div className="error-details">{errorName}</div>}
         <button
           type="submit"
           disabled={
-            patchSupplier.isPending || !patchId.trim() || supplierName === ""
+            patchSupplier.isPending || !supplierID.trim() || supplierName === ""
           }
         >
           {patchSupplier.isPending ? "Patching..." : "Patch Supplier"}
@@ -64,13 +87,24 @@ function PatchSupplier() {
 
       {patchSupplier.isSuccess && (
         <div className="supplier-details">
-          <h1>Supplier Details</h1>
-          <p>✅ Supplier updated successfully!</p>
+          <strong>✅ Supplier updated successfully!</strong>
           {patchSupplier.data && (
-            <p>
-              Updated: {patchSupplier.data.supplierName} (ID:{" "}
-              {patchSupplier.data.supplierID})
-            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Supplier Name</th>
+                  <th>ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{patchSupplier.data.supplierID}</strong>
+                  </td>
+                  <td>{patchSupplier.data.supplierName}</td>
+                </tr>
+              </tbody>
+            </table>
           )}
         </div>
       )}
