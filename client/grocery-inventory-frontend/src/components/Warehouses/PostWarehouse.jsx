@@ -49,7 +49,7 @@ function PostWarehouse() {
           maxLength={100}
           value={warehouseName}
           onChange={handleInputChange}
-          placeholder="Enter warehouse name..."
+          placeholder="Enter warehouse name (eg. Grove Street)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <button

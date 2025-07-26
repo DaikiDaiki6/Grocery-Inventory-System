@@ -70,7 +70,7 @@ function PostSupplier() {
           maxLength={100}
           value={supplierName}
           onChange={handleInputChange}
-          placeholder="Enter supplier name (eg. supplier name (eg. Kamba)"
+          placeholder="Enter supplier name (eg. Kamba)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <button

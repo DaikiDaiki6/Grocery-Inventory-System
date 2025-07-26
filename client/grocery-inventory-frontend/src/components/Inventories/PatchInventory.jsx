@@ -172,7 +172,7 @@ function PatchInventory() {
           min={1}
           value={inventoryId}
           onChange={(e) => setInventoryId(e.target.value)}
-          placeholder="Enter inventory ID"
+          placeholder="Enter inventory ID (eg. 12)"
         />
 
         {Object.entries(formData)

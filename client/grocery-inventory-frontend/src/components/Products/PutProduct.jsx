@@ -88,7 +88,7 @@ function PutProduct() {
           minLength={11}
           maxLength={11}
           onChange={handleInputChange}
-          placeholder="Enter product Id"
+          placeholder="Enter product Id (eg. 11-111-1111)"
         />
         {errorID && <div className="error-details">{errorID}</div>}
         <input
@@ -98,7 +98,7 @@ function PutProduct() {
           maxLength={100}
           value={productName}
           onChange={handleInputChange}
-          placeholder="Enter product name"
+          placeholder="Enter product name (eg. Brewery Mass)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <label>Category</label>

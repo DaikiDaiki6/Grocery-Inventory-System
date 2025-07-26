@@ -38,7 +38,7 @@ function GetSpecificCategory() {
           name="categoryID"
           value={searchId}
           onChange={handleInputChange}
-          placeholder="Enter Category ID (eg.12)"
+          placeholder="Enter Category ID (eg. 12)"
           min={1}
         />
         {errorID && <div className="error-details"> {errorID}</div>}

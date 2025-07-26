@@ -96,7 +96,7 @@ function PostProduct() {
           maxLength={100}
           value={productName}
           onChange={handleInputChange}
-          placeholder="Enter product name"
+          placeholder="Enter product name (eg. Brewery Mass)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <label>Category</label>

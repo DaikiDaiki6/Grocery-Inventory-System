@@ -50,7 +50,7 @@ function DeleteWarehouse() {
             name="deleteId"
             value={warehouseID}
             onChange={handleInputChange}
-            placeholder="Enter warehouse ID"
+            placeholder="Enter warehouse ID (eg. 12)"
             min={1}
           />
           {errorID && <div className="error-details">{errorID}</div>}

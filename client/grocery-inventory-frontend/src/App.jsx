@@ -45,7 +45,7 @@ function App() {
        {/* <PostInventory /> */}
       {/* <GetSpecificInventory /> */}
       {/* <PutInventory /> */}
-      {/* <PatchInventory /> */}
+      <PatchInventory />
       {/* <DeleteInventory /> */}
 
       {/* <GetAllProducts /> */}

@@ -38,7 +38,7 @@ function GetSpecificWarehouse() {
           name="warehouseID"
           value={searchId}
           onChange={handleInputChange}
-          placeholder="Enter Warehouse ID..."
+          placeholder="Enter Warehouse ID (eg. 12)"
           min={1}
         />
         {errorID && <div className="error-details"> {errorID}</div>}

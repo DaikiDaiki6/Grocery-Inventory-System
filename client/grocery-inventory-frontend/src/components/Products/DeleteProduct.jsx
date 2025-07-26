@@ -53,7 +53,7 @@ function DeleteProduct() {
             maxLength={11}
             value={productID}
             onChange={handleInputChange}
-            placeholder="Enter Product Id to delete..."
+            placeholder="Enter Product Id to delete (eg. 11-111-1111)"
           />
           {errorID && <div className="error-details">{errorID}</div>}
           <button

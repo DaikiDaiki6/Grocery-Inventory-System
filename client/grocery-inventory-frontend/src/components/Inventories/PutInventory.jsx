@@ -182,7 +182,7 @@ function PutInventory() {
           name="inventoryId"
           value={inventoryId}
           onChange={(e) => setInventoryId(e.target.value)}
-          placeholder="Enter inventory ID"
+          placeholder="Enter inventory ID (eg. 12)"
         />
 
         {Object.entries(formData).map(([key, value]) => {

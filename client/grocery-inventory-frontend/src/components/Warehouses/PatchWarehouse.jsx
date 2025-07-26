@@ -60,7 +60,7 @@ function PatchWarehouse() {
           name="patchId"
           value={warehouseID}
           onChange={handleInputChange}
-          placeholder="Enter warehouse Id"
+          placeholder="Enter warehouse Id (eg. 12)"
           min={1}
         />
         {errorID && <div className="error-details">{errorID}</div>}
@@ -71,7 +71,7 @@ function PatchWarehouse() {
           maxLength={150}
           value={warehouseName}
           onChange={handleInputChange}
-          placeholder="Enter warehouse name"
+          placeholder="Enter warehouse name (eg. Grove Street)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <button
