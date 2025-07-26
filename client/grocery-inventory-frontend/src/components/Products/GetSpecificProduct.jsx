@@ -4,6 +4,7 @@ import { useGetSpecificProduct } from "../../hooks/useProducts";
 function GetSpecificProduct() {
   const [searchId, setSearchId] = useState("");
   const [currentId, setCurrentId] = useState(null);
+  const [errorID, setErrorID] = useState("");
   const { data: product, isLoading, error } = useGetSpecificProduct(currentId);
 
   const handleSubmit = (e) => {
@@ -15,19 +16,29 @@ function GetSpecificProduct() {
 
   const handleInputChange = (e) => {
     setSearchId(e.target.value);
+    if (e.target.value === "") {
+      setErrorID("");
+    } else if (e.target.value.length !== 11) {
+      setErrorID("⚠️ ID must be exactly 11 characters");
+    } else {
+      setErrorID("");
+    }
   };
 
   return (
     <div className="product">
-      <h1> Search Product</h1>
+      <h1>🥫🔍 Search Product</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          // name = "searchId"
+          name="searchId"
+          minLength={11}
+          maxLength={11}
           value={searchId}
           onChange={handleInputChange}
-          placeholder="Enter Product Id..."
+          placeholder="Enter Product Id (eg. 12-222-2112)"
         />
+        {errorID && <div className="error-details">{errorID}</div>}
         <button type="submit" disabled={!searchId.trim()}>
           Search Product
         </button>
@@ -38,25 +49,35 @@ function GetSpecificProduct() {
           {isLoading && <p>Loading product...</p>}
           {error && (
             <p>
-              Error Loading product:{" "}
-              {error.message || error.response?.data?.title}
+              Error Loading supplier:{" "}
+              {typeof error.response?.data === "string"
+                ? error.response.data
+                : error.response?.data?.title || error.message}
             </p>
           )}
 
           {!isLoading && !error && product && (
             <div className="product-info">
-              <p>
-                <strong>ID:</strong> {product.productID}
-              </p>
-              <p>
-                <strong>Name:</strong> {product.productName}
-              </p>
-              <p>
-                <strong>Category:</strong> {product.category}
-              </p>
-              <p>
-                <strong>Supplier:</strong> {product.supplier}
-              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Supplier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>{product.productName}</strong>
+                    </td>
+                    <td>{product.productID}</td>
+                    <td>{product.category}</td>
+                    <td>{product.supplier}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </div>

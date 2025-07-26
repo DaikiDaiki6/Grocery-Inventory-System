@@ -60,7 +60,7 @@ function PostSupplier() {
           minLength={11}
           maxLength={11}
           onChange={handleInputChange}
-          placeholder="Enter supplier ID..."
+          placeholder="Enter supplier ID (e.g. 00-023-6666)"
         />
         {errorID && <div className="error-details">{errorID}</div>}
         <input
@@ -70,7 +70,7 @@ function PostSupplier() {
           maxLength={100}
           value={supplierName}
           onChange={handleInputChange}
-          placeholder="Enter supplier name..."
+          placeholder="Enter supplier name (eg. supplier name (eg. Kamba)"
         />
         {errorName && <div className="error-details">{errorName}</div>}
         <button

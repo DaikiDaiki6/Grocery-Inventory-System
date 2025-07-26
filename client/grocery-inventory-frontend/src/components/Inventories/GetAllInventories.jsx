@@ -13,35 +13,57 @@ function GetAllInventories() {
 
   return (
     <div className="inventories">
-      <h1>📦 Inventories</h1>
+      <h1>📋 All Inventories</h1>
 
       <div className="list">
-        {inventories?.length === 0 ? (
-          <p>No inventories found in the database.</p>
-        ) : (
-          inventories?.map((inv) => (
-            <div key={inv.inventoryID} className="list-item">
-              <div>
-                <strong>ID:</strong> {inv.inventoryID} <br />
-                <strong>Stock Quantity:</strong> {inv.stockQuantity} <br />
-                <strong>Reorder Level:</strong> {inv.reorderLevel} <br />
-                <strong>Reorder Quantity:</strong> {inv.reorderQuantity} <br />
-                <strong>Unit Price:</strong> {inv.unitPrice} <br />
-                <strong>Date Received:</strong> {inv.dateReceived} <br />
-                <strong>Last Order Date:</strong> {inv.lastOrderDate} <br />
-                <strong>Expiration Date:</strong> {inv.expirationDate} <br />
-                <strong>Sales Volume:</strong> {inv.salesVolume} <br />
-                <strong>Inventory Turnover Rate:</strong>{" "}
-                {inv.inventoryTurnoverRate} <br />
-                <strong>Status:</strong> {inv.status} <br />
-                <strong>Product ID:</strong> {inv.productID} <br />
-                <strong>Warehouse ID:</strong> {inv.warehouseID} <br />
-                <strong>Product Name:</strong> {inv.productName} <br />
-                <strong>Warehouse Name:</strong> {inv.warehouseName}
-              </div>
-            </div>
-          ))
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Inventory ID</th>
+              <th>Stock Quantity</th>
+              <th>Reorder Level</th>
+              <th>Reorder Quantity</th>
+              <th>Unit Price</th>
+              <th>Date Received</th>
+              <th>Last Order Date</th>
+              <th>Expiration Date</th>
+              <th>Sales Volume</th>
+              <th>Turnover Rate</th>
+              <th>Status</th>
+              <th>Product ID</th>
+              <th>Warehouse ID</th>
+              <th>Product Name</th>
+              <th>Warehouse Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inventories?.length === 0 ? (
+              <tr>
+                <td>No inventories found in the database.</td>
+              </tr>
+            ) : (
+              inventories.map((inv) => (
+                <tr key={inv.inventoryID}>
+                  <td>{inv.inventoryID}</td>
+                  <td>{inv.stockQuantity}</td>
+                  <td>{inv.reorderLevel}</td>
+                  <td>{inv.reorderQuantity}</td>
+                  <td>{inv.unitPrice}</td>
+                  <td>{inv.dateReceived}</td>
+                  <td>{inv.lastOrderDate}</td>
+                  <td>{inv.expirationDate}</td>
+                  <td>{inv.salesVolume}</td>
+                  <td>{inv.inventoryTurnoverRate}</td>
+                  <td>{inv.status}</td>
+                  <td>{inv.productID}</td>
+                  <td>{inv.warehouseID}</td>
+                  <td>{inv.productName}</td>
+                  <td>{inv.warehouseName}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

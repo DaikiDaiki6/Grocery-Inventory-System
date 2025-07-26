@@ -53,7 +53,9 @@ function GetSpecificCategory() {
           {error && (
             <p>
               Error Loading category:{" "}
-              {error.message || error.response?.data?.title}
+              {typeof error.response?.data === "string"
+                ? error.response.data
+                : error.response?.data?.title || error.message}
             </p>
           )}
 

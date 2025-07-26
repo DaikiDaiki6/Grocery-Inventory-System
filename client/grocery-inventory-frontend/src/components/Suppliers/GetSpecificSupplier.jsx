@@ -36,11 +36,11 @@ function GetSpecificSupplier() {
         <input
           type="text"
           name="supplierID"
-          value={searchId}
-          onChange={handleInputChange}
-          placeholder="Enter Supplier ID..."
           minLength={11}
           maxLength={11}
+          value={searchId}
+          onChange={handleInputChange}
+          placeholder="Enter Supplier ID (eg. 12-222-2112)"
         />
         {errorID && <div className="error-details">{errorID}</div>}
         <button type="submit" disabled={!searchId.trim()}>
@@ -62,12 +62,22 @@ function GetSpecificSupplier() {
 
           {!isLoading && !error && supplier && (
             <div className="supplier-info">
-              <p>
-                <strong>ID:</strong> {supplier.supplierID}
-              </p>
-              <p>
-                <strong>Name:</strong> {supplier.supplierName}
-              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Suplier Name</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>{supplier.supplierName}</strong>
+                    </td>
+                    <td>{supplier.supplierID}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </div>

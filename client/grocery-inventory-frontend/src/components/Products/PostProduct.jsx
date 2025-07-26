@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { usePostProduct } from "../../hooks/useProducts";
-import {useFetchForeignKeys} from "./useFetchForeignKeys";
+import { useFetchForeignKeys } from "./useFetchForeignKeys";
 
 function PostProduct() {
   const [productId, setProductId] = useState("");
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
   const [supplier, setSupplier] = useState("");
-  const {categories, suppliers, isLoading, error} = useFetchForeignKeys();
-
+  const [errorID, setErrorID] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
   const postProduct = usePostProduct();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,73 +35,131 @@ function PostProduct() {
       setSupplier("");
       console.log("Product created successfully!");
     } catch (error) {
-      console.error("Failed to create category: ", error);
+      console.error("Failed to create product: ", error);
     }
   };
 
   const handleInputChange = (e) => {
     if (e.target.name == "productId") {
       setProductId(e.target.value);
+      if (e.target.value === "") {
+        setErrorID("");
+      } else if (e.target.value.length !== 11) {
+        setErrorID("⚠️ ID must be exactly 11 characters");
+      } else {
+        setErrorID("");
+      }
     }
     if (e.target.name == "productName") {
       setProductName(e.target.value);
+      if (e.target.value === "") {
+        setErrorName("");
+      } else if (e.target.value.length < 2) {
+        setErrorName("⚠️ Name must be at least 2 characters");
+      } else if (e.target.value.length > 100) {
+        setErrorName("⚠️ Name cannot exceed 100 characters");
+      } else {
+        setErrorName("");
+      }
     }
   };
 
   return (
     <div className="product">
-      <h1>Create Product</h1>
-      {isLoading ? (
-        <p>Loading categories and suppliers...</p>
-      ) : error ? (
-        <p>Error loading options</p>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="productId"
-            value={productId}
-            onChange={handleInputChange}
-            placeholder="Enter product Id eg.12-123-1233"
-          />
-          <input
-            type="text"
-            name="productName"
-            value={productName}
-            onChange={handleInputChange}
-            placeholder="Enter product name"
-          />
-          <label>Category</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option key="" value="">Select Category</option>
-            {categories.map((w) => (
-              <option key={w.categoryID} value={w.categoryID}>
-                {w.categoryName}
-              </option>
-            ))}
-          </select>
-          <label>Supplier</label>
-          <select value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-            <option key="" value="">Select Supplier</option>
-            {suppliers.map((w) => (
-              <option key={w.supplierID} value={w.supplierID}>
-                {w.supplierName}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            disabled={
-              postProduct.isPending ||
-              (!productId.trim() &&
-                !productName.trim() &&
-                !category.trim() &&
-                !supplier.trim())
-            }
-          >
-            {postProduct.isPending ? "Creating... " : "Create Product"}
-          </button>
-        </form>
+      <h1>➕ Create Product</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="productId"
+          value={productId}
+          minLength={11}
+          maxLength={11}
+          onChange={handleInputChange}
+          placeholder="Enter product Id (eg.12-123-1233)"
+        />
+        {errorID && <div className="error-details">{errorID}</div>}
+        <input
+          type="text"
+          name="productName"
+          minLength={2}
+          maxLength={100}
+          value={productName}
+          onChange={handleInputChange}
+          placeholder="Enter product name"
+        />
+        {errorName && <div className="error-details">{errorName}</div>}
+        <label>Category</label>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option key="" value="">
+            Select Category
+          </option>
+          {categories.map((w) => (
+            <option key={w.categoryID} value={w.categoryID}>
+              {w.categoryName}
+            </option>
+          ))}
+        </select>
+        <label>Supplier</label>
+        <select value={supplier} onChange={(e) => setSupplier(e.target.value)}>
+          <option key="" value="">
+            Select Supplier
+          </option>
+          {suppliers.map((w) => (
+            <option key={w.supplierID} value={w.supplierID}>
+              {w.supplierName}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={
+            postProduct.isPending ||
+            (!productId.trim() &&
+              !productName.trim() &&
+              !category.trim() &&
+              !supplier.trim())
+          }
+        >
+          {postProduct.isPending ? "Creating... " : "Create Product"}
+        </button>
+      </form>
+
+      {postProduct.isSuccess && (
+        <div className="product-details">
+          <strong>✅ Product created successfully!</strong>
+          {postProduct.data && (
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>ID</th>
+                  <th>Category</th>
+                  <th>Supplier</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>{postProduct.productName}</strong>
+                  </td>
+                  <td>{postProduct.productID}</td>
+                  <td>{postProduct.category}</td>
+                  <td>{postProduct.supplier}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {postProduct.isError && (
+        <div className="product-error">
+          <h1>Product error</h1>
+          <p>
+            Error in creating product:{" "}
+            {postProduct.error?.response?.data || postProduct.error?.message}
+          </p>
+        </div>
       )}
     </div>
   );

@@ -18,15 +18,91 @@ function PostInventory() {
     warehouseID: "",
   });
 
-  const createInventory = usePostInventory();
+  const [validationErrors, setValidationErrors] = useState([]);
+  const postInventory = usePostInventory();
   const { products, warehouses, isLoading, error } = useFetchForeignKeys();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (!name.toLowerCase().includes("date")){
-      if(Number(value) < 1) return;
+    const updatedFormData = { ...formData, [name]: value };
+    setFormData(updatedFormData);
+
+    const errors = [];
+
+    if (
+      updatedFormData.stockQuantity !== "" &&
+      (isNaN(updatedFormData.stockQuantity) ||
+        Number(updatedFormData.stockQuantity) < 0)
+    ) {
+      errors.push("⚠️ Stock Quantity must be 0 or greater");
     }
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (
+      updatedFormData.reorderLevel !== "" &&
+      (isNaN(updatedFormData.reorderLevel) ||
+        Number(updatedFormData.reorderLevel) < 0)
+    ) {
+      errors.push("⚠️ Reorder Level must be 0 or greater");
+    }
+
+    if (
+      updatedFormData.reorderQuantity !== "" &&
+      (isNaN(updatedFormData.reorderQuantity) ||
+        Number(updatedFormData.reorderQuantity) < 1)
+    ) {
+      errors.push("⚠️ Reorder Quantity must be greater than 0");
+    }
+
+    if (
+      updatedFormData.unitPrice !== "" &&
+      (isNaN(updatedFormData.unitPrice) ||
+        Number(updatedFormData.unitPrice) <= 0)
+    ) {
+      errors.push("⚠️ Unit Price must be greater than 0");
+    }
+
+    if (
+      updatedFormData.salesVolume !== "" &&
+      (isNaN(updatedFormData.salesVolume) ||
+        Number(updatedFormData.salesVolume) < 0)
+    ) {
+      errors.push("⚠️ Sales Volume must be 0 or greater");
+    }
+
+    if (
+      updatedFormData.inventoryTurnoverRate !== "" &&
+      (isNaN(updatedFormData.inventoryTurnoverRate) ||
+        Number(updatedFormData.inventoryTurnoverRate) < 0)
+    ) {
+      errors.push("⚠️ Inventory Turnover Rate must be 0 or greater");
+    }
+
+    if (
+      updatedFormData.status !== "" &&
+      (isNaN(updatedFormData.status) ||
+        ![0, 1, 2].includes(Number(updatedFormData.status)))
+    ) {
+      errors.push(
+        "⚠️ Status must be 0 (Active), 1 (BackOrdered), or 2 (Discontinued)"
+      );
+    }
+
+    if (
+      updatedFormData.productID !== "" &&
+      updatedFormData.productID.length !== 11
+    ) {
+      errors.push("⚠️ Product ID must be exactly 11 characters");
+    }
+
+    if (
+      updatedFormData.warehouseID !== "" &&
+      (isNaN(updatedFormData.warehouseID) ||
+        Number(updatedFormData.warehouseID) < 1)
+    ) {
+      errors.push("⚠️ Warehouse ID must be greater than 0");
+    }
+
+    setValidationErrors(errors);
   };
 
   const handleSubmit = async (e) => {
@@ -35,19 +111,17 @@ function PostInventory() {
     if (!formData.productID.trim() || !formData.warehouseID) return;
 
     try {
-      await createInventory.mutateAsync({
+      await postInventory.mutateAsync({
         ...formData,
-        stockQuantity: parseInt(formData.stockQuantity),
-        reorderLevel: parseInt(formData.reorderLevel),
-        reorderQuantity: parseInt(formData.reorderQuantity),
-        unitPrice: parseFloat(formData.unitPrice),
-        salesVolume: parseInt(formData.salesVolume),
-        inventoryTurnoverRate: parseInt(formData.inventoryTurnoverRate),
+        stockQuantity: parseInt(formData.stockQuantity) || 0,
+        reorderLevel: parseInt(formData.reorderLevel) || 0,
+        reorderQuantity: parseInt(formData.reorderQuantity) || 0,
+        unitPrice: parseFloat(formData.unitPrice) || 0,
+        salesVolume: parseInt(formData.salesVolume) || 0,
+        inventoryTurnoverRate: parseInt(formData.inventoryTurnoverRate) || 0,
         status: parseInt(formData.status),
         warehouseID: parseInt(formData.warehouseID),
       });
-
-      console.log("Inventory created!");
 
       setFormData({
         stockQuantity: "",
@@ -63,14 +137,24 @@ function PostInventory() {
         productID: "",
         warehouseID: "",
       });
+
+      setValidationErrors([]);
     } catch (error) {
-      console.error("Failed to create inventory: ", error);
+      console.error("Failed to create inventory:", error);
     }
   };
 
   return (
-    <div className="inventory">
-      <h1>📦 Create Inventory</h1>
+    <div>
+      <h1>➕ Create Inventory</h1>
+
+      {validationErrors.length > 0 && (
+        <div>
+          {validationErrors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      )}
 
       {isLoading ? (
         <p>Loading products and warehouses...</p>
@@ -78,7 +162,6 @@ function PostInventory() {
         <p>Error loading options: {error.message}</p>
       ) : (
         <form onSubmit={handleSubmit}>
-          {/* Input fields */}
           {[
             "stockQuantity",
             "reorderLevel",
@@ -90,41 +173,32 @@ function PostInventory() {
             "salesVolume",
             "inventoryTurnoverRate",
             "status",
-          ].map((field) => {
-            if (field === "status") {
-              return (
-                <select
-                  key={field}
-                  name="status"
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      status: Number(e.target.value),
-                    }))
-                  }
-                >
-                  <option value="">Select status</option>
-                  <option value="0">Active</option>
-                  <option value="1">BackOrdered</option>
-                  <option value="2">Discontinued</option>
-                </select>
-              );
-            }
-
-            return (
+          ].map((field) =>
+            field === "status" ? (
+              <select
+                key={field}
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+              >
+                <option value="">Select status</option>
+                <option value="0">Active</option>
+                <option value="1">BackOrdered</option>
+                <option value="2">Discontinued</option>
+              </select>
+            ) : (
               <input
                 key={field}
                 type={field.toLowerCase().includes("date") ? "date" : "number"}
-                step={field === "unitPrice" ? "0.01" : undefined}
-                min={field.toLowerCase().includes("date") ? undefined : 1}
+                step={field === "unitPrice" ? "0.01" : "1"}
+                min={field.toLowerCase().includes("date") ? undefined : "0"}
                 name={field}
                 value={formData[field]}
                 onChange={handleChange}
                 placeholder={field}
               />
-            );
-          })}
+            )
+          )}
 
           <label>Product</label>
           <select
@@ -132,9 +206,7 @@ function PostInventory() {
             value={formData.productID}
             onChange={handleChange}
           >
-            <option key="" value="">
-              Select a product
-            </option>
+            <option value="">Select a product</option>
             {products.map((p) => (
               <option key={p.productID} value={p.productID}>
                 {p.productName}
@@ -148,9 +220,7 @@ function PostInventory() {
             value={formData.warehouseID}
             onChange={handleChange}
           >
-            <option key="" value="">
-              Select a warehouse
-            </option>
+            <option value="">Select a warehouse</option>
             {warehouses.map((w) => (
               <option key={w.warehouseID} value={w.warehouseID}>
                 {w.warehouseName}
@@ -161,32 +231,54 @@ function PostInventory() {
           <button
             type="submit"
             disabled={
-              createInventory.isPending ||
+              postInventory.isPending ||
               !formData.productID.trim() ||
               !formData.warehouseID
             }
           >
-            {createInventory.isPending ? "Creating..." : "Create Inventory"}
+            {postInventory.isPending ? "Creating..." : "Create Inventory"}
           </button>
         </form>
       )}
 
-      {createInventory.isSuccess && (
-        <div className="inventory-details">
-          <h1>✅ Inventory Created</h1>
-          <p>
-            <strong>Inventory ID:</strong> {createInventory.data.inventoryID}
-          </p>
-          {/* Add more fields here if needed */}
+      {postInventory.isSuccess && (
+        <div>
+          <h2>✅ Inventory Created</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(postInventory.data).map(([key, value]) => (
+                <tr key={key}>
+                  <th>{key}</th>
+                  <td>
+                    {key === "status"
+                      ? value === 0
+                        ? "Active"
+                        : value === 1
+                        ? "BackOrdered"
+                        : value === 2
+                        ? "Discontinued"
+                        : value
+                      : value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {createInventory.isError && (
-        <div className="inventory-error">
-          <h1>Error</h1>
+      {postInventory.isError && (
+        <div>
+          <h2>Error</h2>
           <p>
-            {createInventory.error?.response?.data ||
-              createInventory.error?.message}
+            {postInventory.error?.response?.data ||
+              postInventory.error?.message}
           </p>
         </div>
       )}

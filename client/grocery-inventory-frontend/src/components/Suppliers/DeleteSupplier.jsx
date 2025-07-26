@@ -2,21 +2,21 @@ import { useState } from "react";
 import { useDeleteSupplier } from "../../hooks/useSuppliers";
 
 function DeleteSupplier() {
-  const [deleteId, setDeleteId] = useState("");
+  const [supplierID, setSupplierID] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [errorID, setErrorID] = useState("");
   const deleteSupplier = useDeleteSupplier();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!deleteId.trim()) return;
+    if (!supplierID.trim()) return;
     setShowConfirmation(true);
   };
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteSupplier.mutateAsync(deleteId);
-      setDeleteId("");
+      await deleteSupplier.mutateAsync(supplierID);
+      setSupplierID("");
       setShowConfirmation(false);
       console.log("Supplier deleted successfully!");
     } catch (error) {
@@ -29,7 +29,7 @@ function DeleteSupplier() {
   };
 
   const handleInputChange = (e) => {
-    setDeleteId(e.target.value);
+    setSupplierID(e.target.value);
     if (e.target.value === "") {
       setErrorID("");
     } else if (e.target.value.length !== 11) {
@@ -48,15 +48,16 @@ function DeleteSupplier() {
           <input
             type="text"
             name="deleteId"
-            value={deleteId}
+            minLength={11}
+            maxLength={11}
+            value={supplierID}
             onChange={handleInputChange}
-            placeholder="Enter supplier ID"
-            min={1}
+            placeholder="Enter supplier ID (eg. 12-222-2112)"
           />
           {errorID && <div className="error-details">{errorID}</div>}
           <button
             type="submit"
-            disabled={deleteSupplier.isPending || !deleteId.trim()}
+            disabled={deleteSupplier.isPending || !supplierID.trim()}
           >
             Delete Supplier
           </button>
@@ -66,7 +67,7 @@ function DeleteSupplier() {
           <h2>⚠️ Confirm Deletion</h2>
           <p>
             Are you sure you want to delete supplier with ID{" "}
-            <strong>{deleteId}</strong>?
+            <strong>{supplierID}</strong>?
           </p>
           <p style={{ color: "red" }}>This action cannot be undone!</p>
           <div className="button-group">

@@ -41,25 +41,25 @@ function App() {
       <PatchCategory />
       <DeleteCategory /> */}
 
-      {/* <GetAllInventories />
+      {/* <GetAllInventories /> */}
       <PostInventory />
       <GetSpecificInventory />
       <PutInventory />
       <PatchInventory />
-      <DeleteInventory /> */}
+      <DeleteInventory />
 
-      {/* <GetAllProducts />
-      <PostProduct />
+      {/* <GetAllProducts /> */}
+      {/* <PostProduct />
       <GetSpecificProduct />
       <PutProduct />
       <PatchProduct />
       <DeleteProduct /> */}
 
-      {/* <GetAllSuppliers /> */}
+      {/* <GetAllSuppliers />
       <PostSupplier />
       <GetSpecificSupplier />
       <PatchSupplier />
-      <DeleteSupplier />
+      <DeleteSupplier /> */}
 
       {/* <GetAllWarehouses />
       <PostWarehouse />

@@ -12,23 +12,35 @@ function GetAllProducts() {
 
   return (
     <div className="products">
-      <h1>📦 Products</h1>
+      <h1>🥫 All Products</h1>
 
       <div className="list">
-        {products?.length === 0 ? (
-          <p>No products found in the database.</p>
-        ) : (
-          products?.map((product) => (
-            <div key={product.productID} className="list-item">
-              <div>
-                <strong>ID: </strong> {product.productID}
-                <strong>Product: </strong> {product.productName}
-                <strong>Category: </strong> {product.category}
-                <strong>Product: </strong> {product.supplier}
-              </div>
-            </div>
-          ))
-        )}
+        <table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>ID</th>
+              <th>Category</th>
+              <th>Supplier</th>
+            </tr>
+          </thead>
+          {products?.length === 0 ? (
+            <p>No suppliers found in the database.</p>
+          ) : (
+            products?.map((product) => (
+              <tbody key={product.productID}>
+                <tr>
+                  <td>
+                    <strong>{product.productName}</strong>
+                  </td>
+                  <td>{product.productID}</td>
+                  <td>{product.category}</td>
+                  <td>{product.supplier}</td>
+                </tr>
+              </tbody>
+            ))
+          )}
+        </table>
       </div>
     </div>
   );
