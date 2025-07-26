@@ -22,13 +22,15 @@ function PostInventory() {
   const postInventory = usePostInventory();
   const { products, warehouses, isLoading, error } = useFetchForeignKeys();
 
-  const getProductNameFromID = (e) => {
-    const product = products.find((e) => e.productID === e);
+  const getProductNameFromID = (p) => {
+
+    const product = products.find((e) => e.productID === p);
     return product ? product.productName : "Unknown Product";
   };
 
-  const getWarehouseNameFromID = (e) => {
-    const warehouse = warehouses.find((e) => e.warehouseID === e);
+  const getWarehouseNameFromID = (w) => {
+    const wInt = parseInt(w);
+    const warehouse = warehouses.find((w) => w.warehouseID === wInt);
     return warehouse ? warehouse.warehouseName : "Unknown Warehouse";
   };
 
@@ -223,7 +225,7 @@ function PostInventory() {
             <option value="">Select a product</option>
             {products.map((p) => (
               <option key={p.productID} value={p.productID}>
-                {p.productName}
+                {p.productName} (ID: {p.productID})
               </option>
             ))}
           </select>
@@ -237,7 +239,7 @@ function PostInventory() {
             <option value="">Select a warehouse</option>
             {warehouses.map((w) => (
               <option key={w.warehouseID} value={w.warehouseID}>
-                {w.warehouseName}
+                {w.warehouseName} (ID: {w.warehouseID})
               </option>
             ))}
           </select>
@@ -267,10 +269,7 @@ function PostInventory() {
             </thead>
             <tbody>
               {Object.entries(postInventory.data).map(([key, value]) =>
-                key !== "product" &&
-                key !== "warehouse" &&
-                key !== "productID" &&
-                key !== "warehouseID" ? (
+                key !== "product" && key !== "warehouse" ? (
                   <tr key={key}>
                     <th>{key}</th>
                     <td>
@@ -282,20 +281,14 @@ function PostInventory() {
                           : value === 2
                           ? "Discontinued"
                           : value
-                        : value}
+                        : key === "productID"
+                          ? `${value} - ${getProductNameFromID(value)}`
+                          : key === "warehouseID"
+                            ? `${value} - ${getWarehouseNameFromID(value)}`
+                            : value}
                     </td>
                   </tr>
-                ) : (
-                  <tr key={key}>
-                    <th>{key}</th>
-                    <td>
-                      key === "productID" && ( value {" - "}
-                      getProductNameFromID(value))
-                      key === "warehouseID" && ( value {" - "}
-                      getWarehouseNameFromID(value))
-                    </td>
-                  </tr>
-                )
+                ) : null
               )}
             </tbody>
           </table>

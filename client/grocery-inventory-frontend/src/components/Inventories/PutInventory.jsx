@@ -199,7 +199,7 @@ function PutInventory() {
                 </option>
                 {products.map((p) => (
                   <option key={p.productID} value={p.productID}>
-                    {p.productName}
+                    {p.productName} (ID: {p.productID})
                   </option>
                 ))}
               </select>
@@ -218,7 +218,7 @@ function PutInventory() {
                 <option value="">Select a warehouse</option>
                 {warehouses.map((w) => (
                   <option key={w.warehouseID} value={w.warehouseID}>
-                    {w.warehouseName}
+                    {w.warehouseName} (ID: {w.warehouseID})
                   </option>
                 ))}
               </select>
