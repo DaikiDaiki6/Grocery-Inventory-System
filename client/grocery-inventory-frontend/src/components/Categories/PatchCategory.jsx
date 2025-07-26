@@ -112,11 +112,12 @@ function PatchCategory() {
 
       {patchCategory.isError && (
         <div className="category-error">
-          <h1>Category error</h1>
           <p>
             Error updating category :{" "}
-            {patchCategory.error?.response?.data ||
-              patchCategory.error?.message}
+            {typeof patchCategory.error?.response?.data === "string"
+              ? patchCategory.error.response.data
+              : patchCategory.error?.response?.data?.title ||
+                patchCategory.error?.message}
           </p>
         </div>
       )}

@@ -96,7 +96,6 @@ function DeleteInventory() {
 
       {deleteInventory.isError && (
         <div style={{ color: "red", marginTop: "1rem" }}>
-          <h3>Error</h3>
           <p>
             Error deleting inventory:{" "}
             {typeof deleteInventory.error?.response?.data === "string"

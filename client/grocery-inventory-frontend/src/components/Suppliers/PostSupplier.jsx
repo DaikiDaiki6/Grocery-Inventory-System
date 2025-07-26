@@ -107,10 +107,12 @@ function PostSupplier() {
 
       {postSupplier.isError && (
         <div className="supplier-error">
-          <h1>Supplier error</h1>
           <p>
-            Error in creating supplier:{" "}
-            {postSupplier.error?.response?.data || postSupplier.error?.message}
+            Error creating supplier:{" "}
+            {typeof postSupplier.error?.response?.data === "string"
+              ? postSupplier.error.response.data
+              : postSupplier.error?.response?.data?.title ||
+                postSupplier.error?.message}
           </p>
         </div>
       )}

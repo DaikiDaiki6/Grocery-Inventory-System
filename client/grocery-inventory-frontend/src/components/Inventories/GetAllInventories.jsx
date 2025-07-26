@@ -8,7 +8,15 @@ function GetAllInventories() {
   }
 
   if (error) {
-    return <div>Error Loading inventories: {error.message}</div>;
+    return (
+      <div>
+        Error Loading inventories:{" "}
+        {typeof error?.response?.data === "string"
+          ? error.response.data
+          : error?.response?.data?.title ||
+            error?.message}
+      </div>
+    );
   }
 
   return (

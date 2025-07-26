@@ -338,6 +338,18 @@ function PutInventory() {
           </table>
         </div>
       )}
+
+      {putInventory.isError && (
+        <div className="inventory-error">
+          <p>
+            Error updating inventory:{" "}
+            {typeof putInventory.error?.response?.data === "string"
+              ? putInventory.error.response.data
+              : putInventory.error?.response?.data?.title ||
+                putInventory.error?.message}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

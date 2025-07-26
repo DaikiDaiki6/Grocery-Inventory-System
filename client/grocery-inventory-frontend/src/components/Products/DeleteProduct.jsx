@@ -98,7 +98,6 @@ function DeleteProduct() {
 
       {deleteProduct.isError && (
         <div style={{ color: "red", marginTop: "1rem" }}>
-          <h3>Error</h3>
           <p>
             Error deleting product:{" "}
             {typeof deleteProduct.error?.response?.data === "string"

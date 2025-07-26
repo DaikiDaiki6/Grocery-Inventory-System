@@ -7,7 +7,14 @@ function GetAllProducts() {
     return <div>Loading Products...</div>;
   }
   if (error) {
-    return <div>Error loading products: {error.message}</div>;
+    return (
+      <div>
+        Error loading products:{" "}
+        {typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.title || error.message}
+      </div>
+    );
   }
 
   return (

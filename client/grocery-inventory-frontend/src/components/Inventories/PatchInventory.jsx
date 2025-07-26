@@ -164,101 +164,100 @@ function PatchInventory() {
           ))}
         </div>
       )}
-      {isLoading ? (
-        <p>Loading products and warehouses...</p>
-      ) : error ? (
-        <p>Error loading options: {error.message}</p>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="inventoryId"
-            min={1}
-            value={inventoryId}
-            onChange={(e) => setInventoryId(e.target.value)}
-            placeholder="Enter inventory ID"
-          />
 
-          {Object.entries(formData)
-            .filter(([key]) => key !== "productID" && key !== "warehouseID")
-            .map(([key, value]) => {
-              if (key === "status") {
-                return (
-                  <select
-                    key={key}
-                    name="status"
-                    value={value}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        status: Number(e.target.value),
-                      }))
-                    }
-                  >
-                    <option value="">Select status</option>
-                    <option value="0">Active</option>
-                    <option value="1">BackOrdered</option>
-                    <option value="2">Discontinued</option>
-                  </select>
-                );
-              }
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="inventoryId"
+          min={1}
+          value={inventoryId}
+          onChange={(e) => setInventoryId(e.target.value)}
+          placeholder="Enter inventory ID"
+        />
 
+        {Object.entries(formData)
+          .filter(([key]) => key !== "productID" && key !== "warehouseID")
+          .map(([key, value]) => {
+            if (key === "status") {
               return (
-                <input
+                <select
                   key={key}
-                  type={key.toLowerCase().includes("date") ? "date" : "number"}
-                  min={key.toLowerCase().includes("date") ? undefined : 1}
-                  step={key === "unitPrice" || key === "inventoryTurnoverRate" ? "0.01" : undefined}
-                  name={key}
+                  name="status"
                   value={value}
-                  onChange={handleChange}
-                  placeholder={`Enter ${key}`}
-                />
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: Number(e.target.value),
+                    }))
+                  }
+                >
+                  <option value="">Select status</option>
+                  <option value="0">Active</option>
+                  <option value="1">BackOrdered</option>
+                  <option value="2">Discontinued</option>
+                </select>
               );
-            })}
+            }
 
-          <label>Product</label>
-          <select
-            name="productID"
-            value={formData.productID}
-            onChange={handleChange}
-          >
-            <option key="placeholder-product" value="">
-              Select a product
+            return (
+              <input
+                key={key}
+                type={key.toLowerCase().includes("date") ? "date" : "number"}
+                min={key.toLowerCase().includes("date") ? undefined : 1}
+                step={
+                  key === "unitPrice" || key === "inventoryTurnoverRate"
+                    ? "0.01"
+                    : undefined
+                }
+                name={key}
+                value={value}
+                onChange={handleChange}
+                placeholder={`Enter ${key}`}
+              />
+            );
+          })}
+
+        <label>Product</label>
+        <select
+          name="productID"
+          value={formData.productID}
+          onChange={handleChange}
+        >
+          <option key="placeholder-product" value="">
+            Select a product
+          </option>
+          {products.map((p) => (
+            <option key={p.productID} value={p.productID}>
+              {p.productName} (ID: {p.productID})
             </option>
-            {products.map((p) => (
-              <option key={p.productID} value={p.productID}>
-                {p.productName} (ID: {p.productID})
-              </option>
-            ))}
-          </select>
+          ))}
+        </select>
 
-          <label>Warehouse</label>
-          <select
-            name="warehouseID"
-            value={formData.warehouseID}
-            onChange={handleChange}
-          >
-            <option key="placeholder-warehouse" value="">
-              Select a warehouse
+        <label>Warehouse</label>
+        <select
+          name="warehouseID"
+          value={formData.warehouseID}
+          onChange={handleChange}
+        >
+          <option key="placeholder-warehouse" value="">
+            Select a warehouse
+          </option>
+          {warehouses.map((w) => (
+            <option key={w.warehouseID} value={w.warehouseID}>
+              {w.warehouseName} (ID: {w.warehouseID})
             </option>
-            {warehouses.map((w) => (
-              <option key={w.warehouseID} value={w.warehouseID}>
-                {w.warehouseName} (ID: {w.warehouseID})
-              </option>
-            ))}
-          </select>
+          ))}
+        </select>
 
-          <button
-            type="submit"
-            disabled={patchInventory.isPending || !inventoryId.trim()}
-          >
-            {patchInventory.isPending
-              ? "Updating inventory..."
-              : "Update Inventory"}
-          </button>
-        </form>
-      )}
+        <button
+          type="submit"
+          disabled={patchInventory.isPending || !inventoryId.trim()}
+        >
+          {patchInventory.isPending
+            ? "Updating inventory..."
+            : "Update Inventory"}
+        </button>
+      </form>
 
       {patchInventory.isSuccess && (
         <div className="inventory-details">
@@ -329,6 +328,18 @@ function PatchInventory() {
               </tr>
             </tbody>
           </table>
+        </div>
+      )}
+
+      {patchInventory.isError && (
+        <div className="inventory-error">
+          <p>
+            Error in updating inventory :{" "}
+            {typeof patchInventory.error?.response?.data === "string"
+              ? patchInventory.error.response.data
+              : patchInventory.error?.response?.data?.title ||
+                patchInventory.error?.message}
+          </p>
         </div>
       )}
     </div>

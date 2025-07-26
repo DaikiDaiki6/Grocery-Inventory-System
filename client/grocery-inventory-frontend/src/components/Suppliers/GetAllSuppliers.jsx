@@ -8,7 +8,14 @@ function GetAllSuppliers() {
   }
 
   if (error) {
-    return <div>Error Loading suppliers: {error.message} </div>;
+    return (
+      <div>
+        Error Loading suppliers:{" "}
+        {typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.title || error.message}{" "}
+      </div>
+    );
   }
 
   return (
@@ -28,11 +35,12 @@ function GetAllSuppliers() {
           ) : (
             suppliers?.map((supplier) => (
               <tbody key={supplier.supplierID}>
-                <tr> 
-                  <td><strong>{supplier.supplierName}</strong></td>
+                <tr>
+                  <td>
+                    <strong>{supplier.supplierName}</strong>
+                  </td>
                   <td>{supplier.supplierID}</td>
                 </tr>
-                
               </tbody>
             ))
           )}

@@ -110,11 +110,12 @@ function PatchWarehouse() {
 
       {patchWarehouse.isError && (
         <div className="warehouse-error">
-          <h1>Warehouse error</h1>
           <p>
-            Error updating warehouse :{" "}
-            {patchWarehouse.error?.response?.data ||
-              patchWarehouse.error?.message}
+            Error updating warehouse:{" "}
+            {typeof patchWarehouse.error?.response?.data === "string"
+              ? patchWarehouse.error.response.data
+              : patchWarehouse.error?.response?.data?.title ||
+                patchWarehouse.error?.message}
           </p>
         </div>
       )}

@@ -96,9 +96,8 @@ function DeleteCategory() {
 
       {deleteCategory.isError && (
         <div style={{ color: "red", marginTop: "1rem" }}>
-          <h3>Error</h3>
           <p>
-            Error deleting categories:{" "}
+            <strong>Error deleting categories:{" "}</strong>
             {typeof deleteCategory.error?.response?.data === "string"
               ? deleteCategory.error.response.data
               : deleteCategory.error?.response?.data?.title ||

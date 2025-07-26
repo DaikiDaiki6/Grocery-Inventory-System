@@ -86,11 +86,12 @@ function PostCategory() {
 
       {createCategory.isError && (
         <div className="category-error">
-          <h1>Category error</h1>
           <p>
             Error in creating category :{" "}
-            {createCategory.error?.response?.data ||
-              createCategory.error?.message}
+            {typeof createCategory.error?.response?.data === "string"
+              ? createCategory.error.response.data
+              : createCategory.error?.response?.data?.title ||
+                createCategory.error?.message}
           </p>
         </div>
       )}

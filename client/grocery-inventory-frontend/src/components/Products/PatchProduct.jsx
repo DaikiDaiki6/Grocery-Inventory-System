@@ -12,6 +12,17 @@ function PatchProduct() {
   const patchProduct = usePatchProduct();
   const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
 
+  const getCategoryNameFromID = (c) => {
+    const cInt = parseInt(c);
+    const category = categories.find((e) => e.categoryID === cInt);
+    return category ? category.categoryName : "Unknown Category";
+  };
+
+  const getSupplierNameFromID = (s) => {
+    const supplier = suppliers.find((n) => n.supplierID === s);
+    return supplier ? supplier.supplierName : "Unknown Warehouse";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -154,15 +165,27 @@ function PatchProduct() {
               <tbody>
                 <tr>
                   <td>
-                    <strong>{patchProduct.productName}</strong>
+                    <strong>{patchProduct.data.productName}</strong>
                   </td>
-                  <td>{patchProduct.productID}</td>
-                  <td>{patchProduct.category}</td>
-                  <td>{patchProduct.supplier}</td>
+                  <td>{patchProduct.data.productID}</td>
+                   <td>{patchProduct.data.categoryID} - {getCategoryNameFromID(patchProduct.data.categoryID)}</td>
+                  <td>{patchProduct.data.supplierID} - {getSupplierNameFromID(patchProduct.data.supplierID)}</td>
                 </tr>
               </tbody>
             </table>
           )}
+        </div>
+      )}
+
+      {patchProduct.isError && (
+        <div className="product-error">
+          <p>
+            Error updating product :{" "}
+            {typeof patchProduct.error?.response?.data === "string"
+              ? patchProduct.error.response.data
+              : patchProduct.error?.response?.data?.title ||
+                patchProduct.error?.message}
+          </p>
         </div>
       )}
     </div>

@@ -111,11 +111,12 @@ function PatchSupplier() {
 
       {patchSupplier.isError && (
         <div className="supplier-error">
-          <h1>Supplier error</h1>
           <p>
             Error updating supplier:{" "}
-            {patchSupplier.error?.response?.data ||
-              patchSupplier.error?.message}
+            {typeof patchSupplier.error?.response?.data === "string"
+              ? patchSupplier.error.response.data
+              : patchSupplier.error?.response?.data?.title ||
+                patchSupplier.error?.message}
           </p>
         </div>
       )}

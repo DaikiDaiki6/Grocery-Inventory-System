@@ -8,7 +8,14 @@ function GetAllCategories() {
   }
 
   if (error) {
-    return <div>Error Loading categories: {error.message}</div>;
+    return (
+      <div>
+        Error Loading categories:{" "}
+        {typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.title || error.message}
+      </div>
+    );
   }
 
   return (
@@ -28,11 +35,12 @@ function GetAllCategories() {
           ) : (
             categories?.map((category) => (
               <tbody key={category.categoryID}>
-                <tr> 
-                  <td><strong>{category.categoryName}</strong></td>
+                <tr>
+                  <td>
+                    <strong>{category.categoryName}</strong>
+                  </td>
                   <td>{category.categoryID}</td>
                 </tr>
-                
               </tbody>
             ))
           )}

@@ -86,11 +86,12 @@ function PostWarehouse() {
 
       {postWarehouse.isError && (
         <div className="warehouse-error">
-          <h1>Warehouse error</h1>
           <p>
-            Error in creating warehouse :{" "}
-            {postWarehouse.error?.response?.data ||
-              postWarehouse.error?.message}
+            Error creating warehouse:{" "}
+            {typeof postWarehouse.error?.response?.data === "string"
+              ? postWarehouse.error.response.data
+              : postWarehouse.error?.response?.data?.title ||
+                postWarehouse.error?.message}
           </p>
         </div>
       )}

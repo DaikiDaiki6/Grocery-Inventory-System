@@ -12,6 +12,17 @@ function PostProduct() {
   const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
   const postProduct = usePostProduct();
 
+  const getCategoryNameFromID = (c) => {
+    const cInt = parseInt(c);
+    const category = categories.find((e) => e.categoryID === cInt);
+    return category ? category.categoryName : "Unknown Category";
+  };
+
+  const getSupplierNameFromID = (s) => {
+    const supplier = suppliers.find((n) => n.supplierID === s);
+    return supplier ? supplier.supplierName : "Unknown Warehouse";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -140,11 +151,11 @@ function PostProduct() {
               <tbody>
                 <tr>
                   <td>
-                    <strong>{postProduct.productName}</strong>
+                    <strong>{postProduct.data.productName}</strong>
                   </td>
-                  <td>{postProduct.productID}</td>
-                  <td>{postProduct.category}</td>
-                  <td>{postProduct.supplier}</td>
+                  <td>{postProduct.data.productID}</td>
+                  <td>{postProduct.data.categoryID} - {getCategoryNameFromID(postProduct.data.categoryID)}</td>
+                  <td>{postProduct.data.supplierID} - {getSupplierNameFromID(postProduct.data.supplierID)}</td>
                 </tr>
               </tbody>
             </table>
@@ -154,10 +165,12 @@ function PostProduct() {
 
       {postProduct.isError && (
         <div className="product-error">
-          <h1>Product error</h1>
           <p>
-            Error in creating product:{" "}
-            {postProduct.error?.response?.data || postProduct.error?.message}
+            Error creating product:{" "}
+            {typeof postProduct.error?.response?.data === "string"
+              ? postProduct.error.response.data
+              : postProduct.error?.response?.data?.title ||
+                postProduct.error?.message}
           </p>
         </div>
       )}

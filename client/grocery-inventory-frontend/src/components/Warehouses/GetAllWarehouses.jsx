@@ -8,7 +8,14 @@ function GetAllWarehouses() {
   }
 
   if (error) {
-    return <div>Error Loading warehouses: {error.message} </div>;
+    return (
+      <div>
+        Error Loading warehouses:{" "}
+        {typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.title || error.message}
+      </div>
+    );
   }
 
   return (

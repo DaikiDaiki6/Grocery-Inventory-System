@@ -35,37 +35,37 @@ function App() {
 
   return (
     <>
-      {/* <GetAllCategories />
+      {/* <GetAllCategories />  */}
       <PostCategory />
-      <GetSpecificCategory />
-      <PatchCategory />
-      <DeleteCategory /> */}
+      {/* <GetSpecificCategory /> */}
+      {/* <PatchCategory /> */}
+      {/* <DeleteCategory /> */}
 
       {/* <GetAllInventories /> */}
-      <PostInventory />
-      <GetSpecificInventory />
-      <PutInventory />
-      <PatchInventory />
-      <DeleteInventory />
+       <PostInventory />
+      {/* <GetSpecificInventory /> */}
+      {/* <PutInventory /> */}
+      {/* <PatchInventory /> */}
+      {/* <DeleteInventory /> */}
 
       {/* <GetAllProducts /> */}
-      {/* <PostProduct />
-      <GetSpecificProduct />
-      <PutProduct />
-      <PatchProduct />
-      <DeleteProduct /> */}
+      <PostProduct />
+      {/* <GetSpecificProduct /> */}
+      {/* <PutProduct /> */}
+      {/* <PatchProduct /> */}
+      {/* <DeleteProduct /> */}
 
-      {/* <GetAllSuppliers />
+      {/* <GetAllSuppliers /> */}
       <PostSupplier />
-      <GetSpecificSupplier />
-      <PatchSupplier />
-      <DeleteSupplier /> */}
+      {/* <GetSpecificSupplier /> */}
+      {/* <PatchSupplier /> */}
+      {/* <DeleteSupplier /> */}
 
-      {/* <GetAllWarehouses />
+      {/* <GetAllWarehouses /> */}
       <PostWarehouse />
-      <GetSpecificWarehouse />
-      <PatchWarehouse />
-      <DeleteWarehouse /> */}
+      {/* <GetSpecificWarehouse /> */}
+      {/* <PatchWarehouse /> */}
+      {/* <DeleteWarehouse /> */}
     </>
   );
 }
