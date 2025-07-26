@@ -36,13 +36,13 @@ function App() {
   return (
     <>
       {/* <GetAllCategories />  */}
-      <PostCategory />
+      {/* <PostCategory /> */}
       {/* <GetSpecificCategory /> */}
       {/* <PatchCategory /> */}
       {/* <DeleteCategory /> */}
 
       {/* <GetAllInventories /> */}
-       <PostInventory />
+       {/* <PostInventory /> */}
       {/* <GetSpecificInventory /> */}
       {/* <PutInventory /> */}
       {/* <PatchInventory /> */}
@@ -51,18 +51,18 @@ function App() {
       {/* <GetAllProducts /> */}
       <PostProduct />
       {/* <GetSpecificProduct /> */}
-      {/* <PutProduct /> */}
-      {/* <PatchProduct /> */}
+      <PutProduct />
+      <PatchProduct />
       {/* <DeleteProduct /> */}
 
       {/* <GetAllSuppliers /> */}
-      <PostSupplier />
+      {/* <PostSupplier /> */}
       {/* <GetSpecificSupplier /> */}
       {/* <PatchSupplier /> */}
       {/* <DeleteSupplier /> */}
 
       {/* <GetAllWarehouses /> */}
-      <PostWarehouse />
+      {/* <PostWarehouse /> */}
       {/* <GetSpecificWarehouse /> */}
       {/* <PatchWarehouse /> */}
       {/* <DeleteWarehouse /> */}

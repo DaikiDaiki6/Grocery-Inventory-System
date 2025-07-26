@@ -117,7 +117,7 @@ function PatchProduct() {
             </option>
             {categories.map((w) => (
               <option key={w.categoryID} value={w.categoryID}>
-                {w.categoryName}
+                {w.categoryName} (ID: {w.categoryID})
               </option>
             ))}
           </select>
@@ -131,7 +131,7 @@ function PatchProduct() {
             </option>
             {suppliers.map((w) => (
               <option key={w.supplierID} value={w.supplierID}>
-                {w.supplierName}
+                {w.supplierName} (ID: {w.supplierID})
               </option>
             ))}
           </select>

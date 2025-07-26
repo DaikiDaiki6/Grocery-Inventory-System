@@ -111,7 +111,7 @@ function PostSupplier() {
             Error creating supplier:{" "}
             {typeof postSupplier.error?.response?.data === "string"
               ? postSupplier.error.response.data
-              : postSupplier.error?.response?.data?.title ||
+              : postSupplier.error?.response?.data?.message ||
                 postSupplier.error?.message}
           </p>
         </div>

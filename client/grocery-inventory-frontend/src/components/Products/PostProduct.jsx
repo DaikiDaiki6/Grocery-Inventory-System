@@ -106,7 +106,7 @@ function PostProduct() {
           </option>
           {categories.map((w) => (
             <option key={w.categoryID} value={w.categoryID}>
-              {w.categoryName}
+              {w.categoryName} (ID: {w.categoryID})
             </option>
           ))}
         </select>
@@ -117,7 +117,7 @@ function PostProduct() {
           </option>
           {suppliers.map((w) => (
             <option key={w.supplierID} value={w.supplierID}>
-              {w.supplierName}
+              {w.supplierName} (ID: {w.supplierID})
             </option>
           ))}
         </select>
@@ -169,7 +169,7 @@ function PostProduct() {
             Error creating product:{" "}
             {typeof postProduct.error?.response?.data === "string"
               ? postProduct.error.response.data
-              : postProduct.error?.response?.data?.title ||
+              : postProduct.error?.response?.data?.message ||
                 postProduct.error?.message}
           </p>
         </div>

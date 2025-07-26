@@ -90,7 +90,7 @@ function PostWarehouse() {
             Error creating warehouse:{" "}
             {typeof postWarehouse.error?.response?.data === "string"
               ? postWarehouse.error.response.data
-              : postWarehouse.error?.response?.data?.title ||
+              : postWarehouse.error?.response?.data?.message ||
                 postWarehouse.error?.message}
           </p>
         </div>

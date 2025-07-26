@@ -90,7 +90,7 @@ function PostCategory() {
             Error in creating category :{" "}
             {typeof createCategory.error?.response?.data === "string"
               ? createCategory.error.response.data
-              : createCategory.error?.response?.data?.title ||
+              : createCategory.error?.response?.data?.message ||
                 createCategory.error?.message}
           </p>
         </div>

@@ -301,7 +301,7 @@ function PostInventory() {
             Error creating inventory:{" "}
             {typeof postInventory.error?.response?.data === "string"
               ? postInventory.error.response.data
-              : postInventory.error?.response?.data?.title ||
+              : postInventory.error?.response?.data?.message ||
                 postInventory.error?.message}
           </p>
         </div>
