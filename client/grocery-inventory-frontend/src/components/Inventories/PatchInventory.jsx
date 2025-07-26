@@ -208,7 +208,7 @@ function PatchInventory() {
                   key={key}
                   type={key.toLowerCase().includes("date") ? "date" : "number"}
                   min={key.toLowerCase().includes("date") ? undefined : 1}
-                  step={key === "unitPrice" ? "0.01" : undefined}
+                  step={key === "unitPrice" || key === "inventoryTurnoverRate" ? "0.01" : undefined}
                   name={key}
                   value={value}
                   onChange={handleChange}

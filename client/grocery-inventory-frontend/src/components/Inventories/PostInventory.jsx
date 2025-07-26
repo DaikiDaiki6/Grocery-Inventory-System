@@ -22,6 +22,16 @@ function PostInventory() {
   const postInventory = usePostInventory();
   const { products, warehouses, isLoading, error } = useFetchForeignKeys();
 
+  const getProductNameFromID = (e) => {
+    const product = products.find((e) => e.productID === e);
+    return product ? product.productName : "Unknown Product";
+  };
+
+  const getWarehouseNameFromID = (e) => {
+    const warehouse = warehouses.find((e) => e.warehouseID === e);
+    return warehouse ? warehouse.warehouseName : "Unknown Warehouse";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const updatedFormData = { ...formData, [name]: value };
@@ -190,7 +200,11 @@ function PostInventory() {
               <input
                 key={field}
                 type={field.toLowerCase().includes("date") ? "date" : "number"}
-                step={field === "unitPrice" ? "0.01" : "1"}
+                step={
+                  field === "unitPrice" || field === "inventoryTurnoverRate"
+                    ? "0.01"
+                    : "1"
+                }
                 min={field.toLowerCase().includes("date") ? undefined : "0"}
                 name={field}
                 value={formData[field]}
@@ -252,22 +266,37 @@ function PostInventory() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(postInventory.data).map(([key, value]) => (
-                <tr key={key}>
-                  <th>{key}</th>
-                  <td>
-                    {key === "status"
-                      ? value === 0
-                        ? "Active"
-                        : value === 1
-                        ? "BackOrdered"
-                        : value === 2
-                        ? "Discontinued"
-                        : value
-                      : value}
-                  </td>
-                </tr>
-              ))}
+              {Object.entries(postInventory.data).map(([key, value]) =>
+                key !== "product" &&
+                key !== "warehouse" &&
+                key !== "productID" &&
+                key !== "warehouseID" ? (
+                  <tr key={key}>
+                    <th>{key}</th>
+                    <td>
+                      {key === "status"
+                        ? value === 0
+                          ? "Active"
+                          : value === 1
+                          ? "BackOrdered"
+                          : value === 2
+                          ? "Discontinued"
+                          : value
+                        : value}
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={key}>
+                    <th>{key}</th>
+                    <td>
+                      key === "productID" && ( value {" - "}
+                      getProductNameFromID(value))
+                      key === "warehouseID" && ( value {" - "}
+                      getWarehouseNameFromID(value))
+                    </td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>

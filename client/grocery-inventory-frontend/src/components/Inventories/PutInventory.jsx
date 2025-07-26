@@ -247,7 +247,7 @@ function PutInventory() {
               type={
                 key.includes("Date") || key.includes("date") ? "date" : "number"
               }
-              step={key === "unitPrice" ? "0.01" : undefined}
+              step={key === "unitPrice" || key === "inventoryTurnoverRate" ? "0.01" : undefined}
               min={key.toLowerCase().includes("date") ? undefined : 1}
               name={key}
               value={value}
