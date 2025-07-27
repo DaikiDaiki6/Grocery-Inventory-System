@@ -1,9 +1,13 @@
 import { RouterProvider } from "@tanstack/react-router";
-import { router } from "./router";
+import { router } from "./routes/router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <TanStackRouterDevtools router={router} />
+    </>
   );
 }
 

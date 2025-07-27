@@ -3,13 +3,13 @@ import {
   createRouter,
   createRoute,
 } from "@tanstack/react-router";
-import Layout from "./Layout";
-import PostWarehouse from "./components/Warehouses/PostWarehouse";
-import PatchWarehouse from "./components/Warehouses/PatchWarehouse";
-import DeleteWarehouse from "./components/Warehouses/DeleteWarehouse";
-import GetSpecificWarehouse from "./components/Warehouses/GetSpecificWarehouse";
-import GetAllWarehouses from "./components/Warehouses/GetAllWarehouses";
-import NotFound from './components/NotFound';
+import Layout from "../Layout";
+import PostWarehouse from "../components/Warehouses/PostWarehouse";
+import PatchWarehouse from "../components/Warehouses/PatchWarehouse";
+import DeleteWarehouse from "../components/Warehouses/DeleteWarehouse";
+import GetSpecificWarehouse from "../components/Warehouses/GetSpecificWarehouse";
+import GetAllWarehouses from "../components/Warehouses/GetAllWarehouses";
+import NotFound from "../components/NotFound";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -45,7 +45,6 @@ const getAllWarehousesRoute = createRoute({
   path: "/all-warehouses",
   component: GetAllWarehouses,
 });
-
 
 const routeTree = rootRoute.addChildren([
   postWarehouseRoute,
