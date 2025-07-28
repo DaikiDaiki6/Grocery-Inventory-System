@@ -10,7 +10,7 @@ function PutProduct() {
   const [errorID, setErrorID] = useState("");
   const [errorName, setErrorName] = useState("");
   const putProduct = usePutProduct();
-  const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
+  const { categories, suppliers } = useFetchForeignKeys();
 
   const getCategoryNameFromID = (c) => {
     const cInt = parseInt(c);
@@ -25,22 +25,24 @@ function PutProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // console.log(12121, !categoryId.trim() && !supplierId.trim());
     if (
-      !productID.trim() &&
-      !productName.trim() &&
-      !categoryId.trim() &&
-      !supplierId.trim()
-    )
+      !productID.trim() ||
+      (!productName.trim() && !categoryId.trim() && !supplierId.trim())
+    ) {
       return;
+    }
+
     try {
       await putProduct.mutateAsync({
         id: productID.trim(),
         data: {
-          productName: productName,
+          productName,
           categoryID: categoryId,
           supplierID: supplierId,
         },
       });
+
       setProductID("");
       setProductName("");
       setCategoryId("");
@@ -52,23 +54,26 @@ function PutProduct() {
   };
 
   const handleInputChange = (e) => {
-    if (e.target.name == "productID") {
-      setProductID(e.target.value);
-      if (e.target.value === "") {
+    const { name, value } = e.target;
+
+    if (name === "productID") {
+      setProductID(value);
+      if (value === "") {
         setErrorID("");
-      } else if (e.target.value.length !== 11) {
+      } else if (value.length !== 11) {
         setErrorID("⚠️ ID must be exactly 11 characters");
       } else {
         setErrorID("");
       }
     }
-    if (e.target.name == "productName") {
-      setProductName(e.target.value);
-      if (e.target.value === "") {
+
+    if (name === "productName") {
+      setProductName(value);
+      if (value === "") {
         setErrorName("");
-      } else if (e.target.value.length < 2) {
+      } else if (value.length < 2) {
         setErrorName("⚠️ Name must be at least 2 characters");
-      } else if (e.target.value.length > 100) {
+      } else if (value.length > 100) {
         setErrorName("⚠️ Name cannot exceed 100 characters");
       } else {
         setErrorName("");
@@ -77,104 +82,156 @@ function PutProduct() {
   };
 
   return (
-    <div className="product">
-      <h1>✏️ Put Product</h1>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        ✏️ Update Product
+      </h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="productID"
-          value={productID}
-          minLength={11}
-          maxLength={11}
-          onChange={handleInputChange}
-          placeholder="Enter product Id (eg. 11-111-1111)"
-        />
-        {errorID && <div className="error-details">{errorID}</div>}
-        <input
-          type="text"
-          name="productName"
-          minLength={2}
-          maxLength={100}
-          value={productName}
-          onChange={handleInputChange}
-          placeholder="Enter product name (eg. Brewery Mass)"
-        />
-        {errorName && <div className="error-details">{errorName}</div>}
-        <label>Category</label>
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-        >
-          <option key="" value="">
-            Select Category
-          </option>
-          {categories.map((w) => (
-            <option key={w.categoryID} value={w.categoryID}>
-              {w.categoryName} (ID: {w.categoryID})
-            </option>
-          ))}
-        </select>
-        <label>Supplier</label>
-        <select
-          value={supplierId}
-          onChange={(e) => setSupplierId(e.target.value)}
-        >
-          <option key="" value="">
-            Select Supplier
-          </option>
-          {suppliers.map((w) => (
-            <option key={w.supplierID} value={w.supplierID}>
-              {w.supplierName} (ID: {w.supplierID})
-            </option>
-          ))}
-        </select>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Product ID
+          </label>
+          <input
+            type="text"
+            name="productID"
+            value={productID}
+            minLength={11}
+            maxLength={11}
+            onChange={handleInputChange}
+            placeholder="Enter product ID (e.g. 11-111-1111)"
+            className={`w-full px-4 py-2 border ${
+              errorID ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {errorID && (
+            <div className="text-red-600 text-sm mt-1">{errorID}</div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Product Name
+          </label>
+          <input
+            type="text"
+            name="productName"
+            value={productName}
+            onChange={handleInputChange}
+            placeholder="Enter product name (e.g. Brewery Mass)"
+            className={`w-full px-4 py-2 border ${
+              errorName ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {errorName && (
+            <div className="text-red-600 text-sm mt-1">{errorName}</div>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            name="category"
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat.categoryID} value={cat.categoryID}>
+                {cat.categoryName} (ID: {cat.categoryID})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Supplier
+          </label>
+          <select
+            value={supplierId}
+            onChange={(e) => setSupplierId(e.target.value)}
+            name="supplier"
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Select Supplier</option>
+            {suppliers.map((sup) => (
+              <option key={sup.supplierID} value={sup.supplierID}>
+                {sup.supplierName} (ID: {sup.supplierID})
+              </option>
+            ))}
+          </select>
+        </div>
+
         <button
           type="submit"
           disabled={
             putProduct.isPending ||
-            (!productID.trim() &&
-              !productName.trim() &&
-              !categoryId.trim() &&
-              !supplierId.trim())
+            !productID.trim() ||
+            (!productName.trim() || !categoryId.trim() || !supplierId.trim()) ||
+            errorID ||
+            errorName
           }
+          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
         >
-          {putProduct.isPending ? "Updating..." : "Update Product"}{" "}
+          {putProduct.isPending ? "Updating..." : "Update Product"}
         </button>
       </form>
 
       {putProduct.isSuccess && (
-        <div className="product-details">
-          <strong>✅ Product updated successfully!</strong>
+        <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
+          <strong className="text-green-800 text-base flex items-center gap-2">
+            ✅ Product updated successfully!
+          </strong>
+
           {putProduct.data && (
-            <table>
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>ID</th>
-                  <th>Category</th>
-                  <th>Supplier</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <strong>{putProduct.data.productName}</strong>
-                  </td>
-                  <td>{putProduct.data.productID}</td>
-                   <td>{putProduct.data.categoryID} - {getCategoryNameFromID(putProduct.data.categoryID)}</td>
-                  <td>{putProduct.data.supplierID} - {getSupplierNameFromID(putProduct.data.supplierID)}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="overflow-x-auto mt-4">
+              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
+                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
+                  <tr>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Product Name
+                    </th>
+                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Category
+                    </th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Supplier
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr className="hover:bg-green-50 transition">
+                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
+                      {putProduct.data.productName}
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {putProduct.data.productID}
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {putProduct.data.categoryID} -{" "}
+                      {getCategoryNameFromID(putProduct.data.categoryID)}
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {putProduct.data.supplierID} -{" "}
+                      {getSupplierNameFromID(putProduct.data.supplierID)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
 
       {putProduct.isError && (
-        <div className="product-error">
+        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
           <p>
-            Error updating product:{" "}
+            ❌ Error updating product:{" "}
             {typeof putProduct.error?.response?.data === "string"
               ? putProduct.error.response.data
               : putProduct.error?.response?.data?.title ||

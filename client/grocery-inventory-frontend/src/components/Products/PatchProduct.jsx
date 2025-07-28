@@ -79,14 +79,19 @@ function PatchProduct() {
   };
 
   return (
-    <div className="product">
-      <h1>✏️ Patch Product</h1>
-      {isLoading ? (
-        <p>Loading categories and suppliers...</p>
-      ) : error ? (
-        <p>Error loading options</p>
-      ) : (
-        <form onSubmit={handleSubmit}>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        ✏️ Patch Product
+      </h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            htmlFor="productID"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Product ID
+          </label>
           <input
             type="text"
             name="productID"
@@ -95,8 +100,19 @@ function PatchProduct() {
             maxLength={11}
             onChange={handleInputChange}
             placeholder="Enter product Id (eg.12-123-1233)"
+            className={`w-full px-4 py-2 border ${
+              errorID ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
           />
           {errorID && <div className="error-details">{errorID}</div>}
+        </div>
+        <div>
+          <label
+            htmlFor="productName"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Product Name
+          </label>
           <input
             type="text"
             name="productName"
@@ -105,12 +121,24 @@ function PatchProduct() {
             value={productName}
             onChange={handleInputChange}
             placeholder="Enter product name (eg. Brewery Mass)"
+            className={`w-full px-4 py-2 border ${
+              errorName ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
           />
           {errorName && <div className="error-details">{errorName}</div>}
-          <label>Category</label>
+        </div>
+        <div>
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Category
+          </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
+            name="category"
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option key="" value="">
               Select Category
@@ -121,10 +149,19 @@ function PatchProduct() {
               </option>
             ))}
           </select>
-          <label>Supplier</label>
+        </div>
+        <div>
+          <label
+            htmlFor="supplier"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Suplier
+          </label>
           <select
             value={supplierId}
             onChange={(e) => setSupplierId(e.target.value)}
+            name="supplier"
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option key="" value="">
               Select Supplier
@@ -135,52 +172,72 @@ function PatchProduct() {
               </option>
             ))}
           </select>
-          <button
-            type="submit"
-            disabled={
-              patchProduct.isPending ||
-              (!productID.trim() &&
-                !productName.trim() &&
-                !categoryId.trim() &&
-                !supplierId.trim())
-            }
-          >
-            {patchProduct.isPending ? "Patching..." : "Patch Product"}
-          </button>
-        </form>
-      )}
+        </div>
+        <button
+          type="submit"
+          disabled={
+            patchProduct.isPending ||
+            !productID.trim()||
+            errorID ||
+            errorName
+          }
+          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+        >
+          {patchProduct.isPending ? "Patching..." : "Patch Product"}
+        </button>
+      </form>
+
       {patchProduct.isSuccess && (
-        <div>
-          <strong>✅ Product Patched Successfully</strong>
+        <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
+          <strong className="text-green-800 text-base flex items-center gap-2">
+            ✅ Category updated successfully!
+          </strong>
+
           {patchProduct.data && (
-            <table>
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>ID</th>
-                  <th>Category</th>
-                  <th>Supplier</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <strong>{patchProduct.data.productName}</strong>
-                  </td>
-                  <td>{patchProduct.data.productID}</td>
-                   <td>{patchProduct.data.categoryID} - {getCategoryNameFromID(patchProduct.data.categoryID)}</td>
-                  <td>{patchProduct.data.supplierID} - {getSupplierNameFromID(patchProduct.data.supplierID)}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="overflow-x-auto mt-4">
+              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
+                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
+                  <tr>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Product Name
+                    </th>
+                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Category
+                    </th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Supplier
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  <tr className="hover:bg-green-50 transition">
+                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
+                      <strong>{patchProduct.data.productName}</strong>
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {patchProduct.data.productID}
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {patchProduct.data.categoryID} -{" "}
+                      {getCategoryNameFromID(patchProduct.data.categoryID)}
+                    </td>
+                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
+                      {patchProduct.data.supplierID} -{" "}
+                      {getSupplierNameFromID(patchProduct.data.supplierID)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
 
       {patchProduct.isError && (
-        <div className="product-error">
+        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
           <p>
-            Error updating product :{" "}
+            ❌ Error updating category:{" "}
             {typeof patchProduct.error?.response?.data === "string"
               ? patchProduct.error.response.data
               : patchProduct.error?.response?.data?.title ||

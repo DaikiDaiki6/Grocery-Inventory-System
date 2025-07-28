@@ -94,7 +94,7 @@ function PatchCategory() {
         <button
           type="submit"
           disabled={
-            patchCategory.isPending || !categoryID.trim() || !categoryName.trim()
+            patchCategory.isPending || !categoryID.trim() || !categoryName.trim() || errorID || errorName
           }
           className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
         >

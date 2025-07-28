@@ -96,7 +96,7 @@ function PatchSupplier() {
         <button
           type="submit"
           disabled={
-            patchSupplier.isPending || !supplierID.trim() || supplierName === ""
+            patchSupplier.isPending || !supplierID.trim() || supplierName === "" || errorID || errorName
           }
           className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
         >

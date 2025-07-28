@@ -155,17 +155,29 @@ function PatchInventory() {
   };
 
   return (
-    <div className="inventory">
-      <h1>✏️ Patch Inventory</h1>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 mt-6">
+      <h1 className="text-xl font-bold text-gray-800 mb-4">
+        ✏️ Patch Inventory
+      </h1>
+
       {validationErrors.length > 0 && (
-        <div className="validation-errors">
+        <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-xl space-y-2 shadow-sm">
           {validationErrors.map((error, index) => (
             <p key={index}>{error}</p>
           ))}
         </div>
       )}
 
+      {error && (
+        <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+          ❌ Failed to load foreign key data.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Inventory ID
+        </label>
         <input
           type="text"
           name="inventoryId"
@@ -173,6 +185,7 @@ function PatchInventory() {
           value={inventoryId}
           onChange={(e) => setInventoryId(e.target.value)}
           placeholder="Enter inventory ID (eg. 12)"
+          className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
         />
 
         {Object.entries(formData)
@@ -180,48 +193,67 @@ function PatchInventory() {
           .map(([key, value]) => {
             if (key === "status") {
               return (
-                <select
-                  key={key}
-                  name="status"
-                  value={value}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      status: Number(e.target.value),
-                    }))
-                  }
-                >
-                  <option value="">Select status</option>
-                  <option value="0">Active</option>
-                  <option value="1">BackOrdered</option>
-                  <option value="2">Discontinued</option>
-                </select>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ">
+                    {key
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (c) => c.toUpperCase())}
+                  </label>
+                  <select
+                    key={key}
+                    name="status"
+                    value={value}
+                    className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        status: Number(e.target.value),
+                      }))
+                    }
+                  >
+                    <option value="">Select status</option>
+                    <option value="0">Active</option>
+                    <option value="1">BackOrdered</option>
+                    <option value="2">Discontinued</option>
+                  </select>
+                </div>
               );
             }
 
             return (
-              <input
-                key={key}
-                type={key.toLowerCase().includes("date") ? "date" : "number"}
-                min={key.toLowerCase().includes("date") ? undefined : 1}
-                step={
-                  key === "unitPrice" || key === "inventoryTurnoverRate"
-                    ? "0.01"
-                    : undefined
-                }
-                name={key}
-                value={value}
-                onChange={handleChange}
-                placeholder={`Enter ${key}`}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 ">
+                  {key
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (c) => c.toUpperCase())}
+                </label>
+                <input
+                  key={key}
+                  type={key.toLowerCase().includes("date") ? "date" : "number"}
+                  min={key.toLowerCase().includes("date") ? undefined : 1}
+                  step={
+                    key === "unitPrice" || key === "inventoryTurnoverRate"
+                      ? "0.01"
+                      : undefined
+                  }
+                  name={key}
+                  value={value}
+                  onChange={handleChange}
+                  placeholder={`Enter ${key}`}
+                  className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+                />
+              </div>
             );
           })}
 
-        <label>Product</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1 ">
+          Product
+        </label>
         <select
           name="productID"
           value={formData.productID}
           onChange={handleChange}
+          className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
         >
           <option key="placeholder-product" value="">
             Select a product
@@ -233,11 +265,14 @@ function PatchInventory() {
           ))}
         </select>
 
-        <label>Warehouse</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1 ">
+          Warehouse
+        </label>
         <select
           name="warehouseID"
           value={formData.warehouseID}
           onChange={handleChange}
+          className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
         >
           <option key="placeholder-warehouse" value="">
             Select a warehouse
@@ -251,7 +286,22 @@ function PatchInventory() {
 
         <button
           type="submit"
-          disabled={patchInventory.isPending || !inventoryId.trim()}
+          disabled={
+            patchInventory.isPending ||
+            (!inventoryId.trim() &&
+              (!formData.productID.trim() ||
+                !formData.warehouseID ||
+                !formData.reorderLevel.trim() ||
+                !formData.reorderQuantity.trim() ||
+                !formData.unitPrice.trim() ||
+                !formData.dateReceived.trim() ||
+                !formData.lastOrderDate.trim() ||
+                !formData.expirationDate.trim() ||
+                !formData.salesVolume.trim() ||
+                !formData.inventoryTurnoverRate.trim() ||
+                !formData.status.trim()))
+          }
+          className="w-full py-2 mt-4 px-4 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
         >
           {patchInventory.isPending
             ? "Updating inventory..."
@@ -260,71 +310,73 @@ function PatchInventory() {
       </form>
 
       {patchInventory.isSuccess && (
-        <div className="inventory-details">
-          <strong>✅ Inventory Updated</strong>
-          <table>
-            <thead>
+        <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-5 shadow-sm">
+          <h2 className="font-semibold text-green-800 text-base mb-4 flex items-center gap-2">
+            ✅ Inventory Updated
+          </h2>
+          <table className="min-w-full text-sm text-gray-700 bg-white border border-gray-200 rounded-xl">
+            <thead className="bg-gray-50 text-gray-600 uppercase text-xs border-b border-gray-200">
               <tr>
-                <th>Field</th>
-                <th>Value</th>
+                <th className="px-4 py-3 text-left">Field</th>
+                <th className="px-4 py-3 text-left">Value</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th>Inventory ID</th>
-                <td>{patchInventory.data.inventoryID}</td>
+                <th className="px-4 py-3 text-left">Inventory ID</th>
+                <td className="px-4 py-3">{patchInventory.data.inventoryID}</td>
               </tr>
               <tr>
-                <th>Stock Quantity</th>
-                <td>{patchInventory.data.stockQuantity}</td>
+                <th className="px-4 py-3 text-left">Stock Quantity</th>
+                <td className="px-4 py-3">{patchInventory.data.stockQuantity}</td>
               </tr>
               <tr>
-                <th>Reorder Level</th>
-                <td>{patchInventory.data.reorderLevel}</td>
+                <th className="px-4 py-3 text-left">Reorder Level</th>
+                <td className="px-4 py-3">{patchInventory.data.reorderLevel}</td>
               </tr>
               <tr>
-                <th>Reorder Quantity</th>
-                <td>{patchInventory.data.reorderQuantity}</td>
+                <th className="px-4 py-3 text-left">Reorder Quantity</th>
+                <td className="px-4 py-3">{patchInventory.data.reorderQuantity}</td>
               </tr>
               <tr>
-                <th>Unit Price</th>
-                <td>${patchInventory.data.unitPrice}</td>
+                <th className="px-4 py-3 text-left">Unit Price</th>
+                <td className="px-4 py-3">${patchInventory.data.unitPrice}</td>
               </tr>
               <tr>
-                <th>Date Received</th>
-                <td>{patchInventory.data.dateReceived}</td>
+                <th className="px-4 py-3 text-left">Date Received</th>
+                <td className="px-4 py-3">{patchInventory.data.dateReceived}</td>
               </tr>
               <tr>
-                <th>Last Order Date</th>
-                <td>{patchInventory.data.lastOrderDate}</td>
+                <th className="px-4 py-3 text-left">Last Order Date</th>
+                <td className="px-4 py-3">{patchInventory.data.lastOrderDate}</td>
               </tr>
               <tr>
-                <th>Expiration Date</th>
-                <td>{patchInventory.data.expirationDate}</td>
+                <th className="px-4 py-3 text-left">Expiration Date</th>
+                <td className="px-4 py-3">{patchInventory.data.expirationDate}</td>
               </tr>
               <tr>
-                <th>Sales Volume</th>
-                <td>{patchInventory.data.salesVolume}</td>
+                <th className="px-4 py-3 text-left">Sales Volume</th>
+                <td className="px-4 py-3">{patchInventory.data.salesVolume}</td>
               </tr>
               <tr>
-                <th>Inventory Turnover Rate</th>
-                <td>{patchInventory.data.inventoryTurnoverRate}</td>
+                <th className="px-4 py-3 text-left">Inventory Turnover Rate</th>
+                <td className="px-4 py-3">{patchInventory.data.inventoryTurnoverRate}</td>
               </tr>
               <tr>
-                <th>Status</th>
-                <td>
+                <th className="px-4 py-3 text-left">Status</th>
+                <td className="px-4 py-3">
                   {patchInventory.data.status === 0 && "Active"}
                   {patchInventory.data.status === 1 && "BackOrdered"}
                   {patchInventory.data.status === 2 && "Discontinued"}
                 </td>
               </tr>
               <tr>
-                <th>Product ID</th>
-                <td>{patchInventory.data.productID}</td>
+                <th className="px-4 py-3 text-left">Product ID</th>
+                <td className="px-4 py-3">{patchInventory.data.productID}</td>
               </tr>
               <tr>
-                <th>Warehouse ID</th>
-                <td>{patchInventory.data.warehouseID}</td>
+                <th className="px-4 py-3 text-left">Warehouse ID</th>
+                <td className="px-4 py-3">{patchInventory.data.warehouseID}</td>
               </tr>
             </tbody>
           </table>
@@ -332,9 +384,9 @@ function PatchInventory() {
       )}
 
       {patchInventory.isError && (
-        <div className="inventory-error">
+        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
           <p>
-            Error in updating inventory :{" "}
+            ❌ Error in updating inventory :{" "}
             {typeof patchInventory.error?.response?.data === "string"
               ? patchInventory.error.response.data
               : patchInventory.error?.response?.data?.title ||

@@ -119,7 +119,7 @@ function PostWarehouse() {
       {postWarehouse.isError && (
         <div className="mt-6 p-4 bg-red-50 border border-red-300 rounded text-red-700">
           <p>
-            Error in creating warehouse:{" "}
+            ❌ Error in creating warehouse:{" "}
             {typeof postWarehouse.error?.response?.data === "string"
               ? postWarehouse.error.response.data
               : postWarehouse.error?.response?.data?.message ||

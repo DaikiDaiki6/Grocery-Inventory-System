@@ -23,7 +23,6 @@ function PostInventory() {
   const { products, warehouses, isLoading, error } = useFetchForeignKeys();
 
   const getProductNameFromID = (p) => {
-
     const product = products.find((e) => e.productID === p);
     return product ? product.productName : "Unknown Product";
   };
@@ -157,48 +156,62 @@ function PostInventory() {
   };
 
   return (
-    <div>
-      <h1>➕ Create Inventory</h1>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 mt-6">
+      <h1 className="text-xl font-bold text-gray-800 mb-4">
+        ➕ Create Inventory
+      </h1>
 
       {validationErrors.length > 0 && (
-        <div>
+        <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-xl space-y-2 shadow-sm">
           {validationErrors.map((error, index) => (
-            <p key={index}>{error}</p>
+            <p key={index} className="text-sm leading-snug">
+              {error}
+            </p>
           ))}
         </div>
       )}
 
-      {isLoading ? (
-        <p>Loading products and warehouses...</p>
-      ) : error ? (
-        <p>Error loading options: {error.message}</p>
-      ) : (
-        <form onSubmit={handleSubmit}>
-          {[
-            "stockQuantity",
-            "reorderLevel",
-            "reorderQuantity",
-            "unitPrice",
-            "dateReceived",
-            "lastOrderDate",
-            "expirationDate",
-            "salesVolume",
-            "inventoryTurnoverRate",
-            "status",
-          ].map((field) =>
-            field === "status" ? (
+      <form onSubmit={handleSubmit}>
+        {[
+          "stockQuantity",
+          "reorderLevel",
+          "reorderQuantity",
+          "unitPrice",
+          "dateReceived",
+          "lastOrderDate",
+          "expirationDate",
+          "salesVolume",
+          "inventoryTurnoverRate",
+          "status",
+        ].map((field) =>
+          field === "status" ? (
+            <div key={field}> 
+              <label className="block text-sm font-medium text-gray-700 mb-1 ">
+                {field
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (c) => c.toUpperCase())}
+              </label>
               <select
                 key={field}
                 name={field}
                 value={formData[field]}
                 onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300
+                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Select status</option>
                 <option value="0">Active</option>
                 <option value="1">BackOrdered</option>
                 <option value="2">Discontinued</option>
               </select>
-            ) : (
+            </div>
+          ) : (
+            <div key={field}>
+              <label className="block text-sm font-medium text-gray-700 mb-1 ">
+                {field
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (c) => c.toUpperCase())}
+              </label>
               <input
                 key={field}
                 type={field.toLowerCase().includes("date") ? "date" : "number"}
@@ -212,50 +225,70 @@ function PostInventory() {
                 value={formData[field]}
                 onChange={handleChange}
                 placeholder={field}
+                className="w-full px-4 py-2 border border-gray-300
+                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-            )
-          )}
+            </div>
+          )
+        )}
 
-          <label>Product</label>
-          <select
-            name="productID"
-            value={formData.productID}
-            onChange={handleChange}
-          >
-            <option value="">Select a product</option>
-            {products.map((p) => (
-              <option key={p.productID} value={p.productID}>
-                {p.productName} (ID: {p.productID})
-              </option>
-            ))}
-          </select>
+        <label className="block text-sm font-medium text-gray-700 mb-1 ">
+          Product
+        </label>
+        <select
+          name="productID"
+          value={formData.productID}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300
+                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          <option value="">Select a product</option>
+          {products.map((p) => (
+            <option key={p.productID} value={p.productID}>
+              {p.productName} (ID: {p.productID})
+            </option>
+          ))}
+        </select>
 
-          <label>Warehouse</label>
-          <select
-            name="warehouseID"
-            value={formData.warehouseID}
-            onChange={handleChange}
-          >
-            <option value="">Select a warehouse</option>
-            {warehouses.map((w) => (
-              <option key={w.warehouseID} value={w.warehouseID}>
-                {w.warehouseName} (ID: {w.warehouseID})
-              </option>
-            ))}
-          </select>
+        <label className="block text-sm font-medium text-gray-700 mb-1 ">
+          Warehouse
+        </label>
+        <select
+          name="warehouseID"
+          value={formData.warehouseID}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300
+                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          <option value="">Select a warehouse</option>
+          {warehouses.map((w) => (
+            <option key={w.warehouseID} value={w.warehouseID}>
+              {w.warehouseName} (ID: {w.warehouseID})
+            </option>
+          ))}
+        </select>
 
-          <button
-            type="submit"
-            disabled={
-              postInventory.isPending ||
-              !formData.productID.trim() ||
-              !formData.warehouseID
-            }
-          >
-            {postInventory.isPending ? "Creating..." : "Create Inventory"}
-          </button>
-        </form>
-      )}
+        <button
+          type="submit"
+          disabled={
+            postInventory.isPending ||
+            !formData.productID.trim() ||
+            !formData.warehouseID ||
+            !formData.reorderLevel.trim() ||
+            !formData.reorderQuantity.trim() ||
+            !formData.unitPrice.trim() ||
+            !formData.dateReceived.trim() ||
+            !formData.lastOrderDate.trim() ||
+            !formData.expirationDate.trim() ||
+            !formData.salesVolume.trim() ||
+            !formData.inventoryTurnoverRate.trim() ||
+            !formData.status.trim()
+          }
+          className="w-full py-2 mt-4 px-4 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
+        >
+          {postInventory.isPending ? "Creating..." : "Create Inventory"}
+        </button>
+      </form>
 
       {postInventory.isSuccess && (
         <div>
@@ -282,10 +315,10 @@ function PostInventory() {
                           ? "Discontinued"
                           : value
                         : key === "productID"
-                          ? `${value} - ${getProductNameFromID(value)}`
-                          : key === "warehouseID"
-                            ? `${value} - ${getWarehouseNameFromID(value)}`
-                            : value}
+                        ? `${value} - ${getProductNameFromID(value)}`
+                        : key === "warehouseID"
+                        ? `${value} - ${getWarehouseNameFromID(value)}`
+                        : value}
                     </td>
                   </tr>
                 ) : null
@@ -296,9 +329,9 @@ function PostInventory() {
       )}
 
       {postInventory.isError && (
-        <div>
+        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
           <p>
-            Error creating inventory:{" "}
+            ❌ Error creating inventory:{" "}
             {typeof postInventory.error?.response?.data === "string"
               ? postInventory.error.response.data
               : postInventory.error?.response?.data?.message ||

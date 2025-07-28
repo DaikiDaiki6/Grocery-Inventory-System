@@ -40,8 +40,7 @@ function PatchWarehouse() {
     if (name === "warehouseID") {
       setWarehouseID(value);
       if (!value) setErrorID("");
-      else if (parseInt(value) <= 0)
-        setErrorID("⚠️ ID must be 1 or greater.");
+      else if (parseInt(value) <= 0) setErrorID("⚠️ ID must be 1 or greater.");
       else setErrorID("");
     }
   };
@@ -54,7 +53,10 @@ function PatchWarehouse() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="warehouseID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="warehouseID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Warehouse ID
           </label>
           <input
@@ -72,7 +74,10 @@ function PatchWarehouse() {
         </div>
 
         <div>
-          <label htmlFor="warehouseName" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="warehouseName"
+            className="block text-sm font-medium text-gray-700"
+          >
             Warehouse Name
           </label>
           <input
@@ -87,7 +92,9 @@ function PatchWarehouse() {
               errorName ? "border-red-500" : "border-gray-300"
             } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
           />
-          {errorName && <p className="text-sm text-red-600 mt-1">{errorName}</p>}
+          {errorName && (
+            <p className="text-sm text-red-600 mt-1">{errorName}</p>
+          )}
         </div>
 
         <button
@@ -95,7 +102,9 @@ function PatchWarehouse() {
           disabled={
             patchWarehouse.isPending ||
             !warehouseID.trim() ||
-            !warehouseName.trim()
+            !warehouseName.trim() ||
+            errorID ||
+            errorName
           }
           className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
         >
@@ -114,7 +123,9 @@ function PatchWarehouse() {
               <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
                 <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
                   <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">Warehouse Name</th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Warehouse Name
+                    </th>
                     <th className="px-4 py-3 border-b border-gray-300">ID</th>
                   </tr>
                 </thead>

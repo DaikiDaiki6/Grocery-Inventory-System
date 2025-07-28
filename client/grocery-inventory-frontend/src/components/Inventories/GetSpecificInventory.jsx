@@ -30,104 +30,91 @@ function GetSpecificInventory() {
   };
 
   return (
-    <div className="inventory">
-      <h1>📦 Search Inventory</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="number"
-          name="inventoryID"
-          value={searchId}
-          onChange={handleInputChange}
-          placeholder="Enter Inventory ID (eg. 12)"
-          min={1}
-        />
-        {errorID && <div className="error-details">{errorID}</div>}
-        <button type="submit" disabled={!searchId.trim()}>
+    <div className="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">📦 Search Inventory</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="inventoryID" className="block text-sm font-medium text-gray-700">
+            Inventory ID
+          </label>
+          <input
+            type="number"
+            id="inventoryID"
+            name="inventoryID"
+            value={searchId}
+            onChange={handleInputChange}
+            placeholder="e.g. 12"
+            min={1}
+            className={`w-full px-4 py-2 border ${
+              errorID ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {errorID && <p className="text-red-600 text-sm mt-1">{errorID}</p>}
+        </div>
+
+        <button
+          type="submit"
+          disabled={!searchId.trim()}
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md disabled:opacity-50"
+        >
           Search Inventory
         </button>
       </form>
 
       {currentId && (
-        <div className="inventory-details">
-          {isLoading && <p>Loading inventory...</p>}
+        <div className="mt-6">
+          {isLoading && <p className="text-gray-600">Loading inventory...</p>}
+
           {error && (
-            <p>
-              Error Loading inventory:{" "}
-              {typeof error.response?.data === "string"
-                ? error.response.data
-                : error.response?.data?.title || error.message}
-            </p>
+            <div className="text-red-600 bg-red-50 p-3 mt-4 rounded-md border border-red-300">
+              <p className="font-semibold">Error loading inventory:</p>
+              <p>
+                {typeof error.response?.data === "string"
+                  ? error.response.data
+                  : error.response?.data?.title || error.message}
+              </p>
+            </div>
           )}
 
           {!isLoading && !error && inventory && (
-            <div className="inventory-info">
-              <table>
-                <thead>
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold text-green-700 mb-2">
+                ✅ Inventory Found:
+              </h2>
+              <table className="w-full table-auto border-collapse border border-gray-300 rounded overflow-hidden text-left text-sm">
+                <thead className="bg-gray-100">
                   <tr>
-                    <th>Field</th>
-                    <th>Value</th>
+                    <th className="border border-gray-300 px-4 py-2">Field</th>
+                    <th className="border border-gray-300 px-4 py-2">Value</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>ID</td>
-                    <td>{inventory.inventoryID}</td>
-                  </tr>
-                  <tr>
-                    <td>Stock Qty</td>
-                    <td>{inventory.stockQuantity}</td>
-                  </tr>
-                  <tr>
-                    <td>Reorder Lvl</td>
-                    <td>{inventory.reorderLevel}</td>
-                  </tr>
-                  <tr>
-                    <td>Reorder Qty</td>
-                    <td>{inventory.reorderQuantity}</td>
-                  </tr>
-                  <tr>
-                    <td>Unit Price</td>
-                    <td>{inventory.unitPrice}</td>
-                  </tr>
-                  <tr>
-                    <td>Date Received</td>
-                    <td>{inventory.dateReceived}</td>
-                  </tr>
-                  <tr>
-                    <td>Last Order</td>
-                    <td>{inventory.lastOrderDate}</td>
-                  </tr>
-                  <tr>
-                    <td>Expiration</td>
-                    <td>{inventory.expirationDate}</td>
-                  </tr>
-                  <tr>
-                    <td>Sales Volume</td>
-                    <td>{inventory.salesVolume}</td>
-                  </tr>
-                  <tr>
-                    <td>Turnover Rate</td>
-                    <td>{inventory.inventoryTurnoverRate}</td>
-                  </tr>
-                  <tr>
-                    <td>Status</td>
-                    <td>
+                <tbody className="bg-white">
+                  <tr><td className="border px-4 py-2">ID</td><td className="border px-4 py-2">{inventory.inventoryID}</td></tr>
+                  <tr><td className="border px-4 py-2">Stock Qty</td><td className="border px-4 py-2">{inventory.stockQuantity}</td></tr>
+                  <tr><td className="border px-4 py-2">Reorder Lvl</td><td className="border px-4 py-2">{inventory.reorderLevel}</td></tr>
+                  <tr><td className="border px-4 py-2">Reorder Qty</td><td className="border px-4 py-2">{inventory.reorderQuantity}</td></tr>
+                  <tr><td className="border px-4 py-2">Unit Price</td><td className="border px-4 py-2">{inventory.unitPrice}</td></tr>
+                  <tr><td className="border px-4 py-2">Date Received</td><td className="border px-4 py-2">{inventory.dateReceived}</td></tr>
+                  <tr><td className="border px-4 py-2">Last Order</td><td className="border px-4 py-2">{inventory.lastOrderDate}</td></tr>
+                  <tr><td className="border px-4 py-2">Expiration</td><td className="border px-4 py-2">{inventory.expirationDate}</td></tr>
+                  <tr><td className="border px-4 py-2">Sales Volume</td><td className="border px-4 py-2">{inventory.salesVolume}</td></tr>
+                  <tr><td className="border px-4 py-2">Turnover Rate</td><td className="border px-4 py-2">{inventory.inventoryTurnoverRate}</td></tr>
+                  <tr><td className="border px-4 py-2">Status</td>
+                    <td className="border px-4 py-2">
                       {inventory.status === 0 && "Active"}
                       {inventory.status === 1 && "BackOrdered"}
                       {inventory.status === 2 && "Discontinued"}
                     </td>
                   </tr>
-                  <tr>
-                    <td>Product</td>
-                    <td>
+                  <tr><td className="border px-4 py-2">Product</td>
+                    <td className="border px-4 py-2">
                       {inventory.product
                         ? `${inventory.product.productID} - ${inventory.product.productName}`
                         : "N/A"}
                     </td>
                   </tr>
-                  <tr>
-                    <td>Warehouse</td>
-                    <td>
+                  <tr><td className="border px-4 py-2">Warehouse</td>
+                    <td className="border px-4 py-2">
                       {inventory.warehouse
                         ? `${inventory.warehouse.warehouseID} - ${inventory.warehouse.warehouseName}`
                         : "N/A"}
