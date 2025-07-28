@@ -5,21 +5,23 @@ import {
 } from "@tanstack/react-router";
 import Layout from "../Layout";
 import NotFound from "../components/NotFound";
-import Warehouse from "../components/Warehouses/Warehouse";
+import { warehouseRoute } from "./warehouseRouter";
+import { categoryRoute } from "./categoryRouter";
+import { productRoute } from "./productRouter";
+import { inventoryRoute } from "./inventoryRouter";
+import { supplierRoute } from "./supplierRouter";
 
-const rootRoute = createRootRoute({
+export const rootRoute = createRootRoute({
   component: Layout,
   notFoundComponent: NotFound,
 });
 
-const warehouseRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/warehouse",
-  component: Warehouse,
-});
-
 const routeTree = rootRoute.addChildren([
-  warehouseRoute
+  warehouseRoute,
+  categoryRoute,
+  productRoute,
+  inventoryRoute,
+  supplierRoute,
 ]);
 
 export const router = createRouter({ routeTree });

@@ -1,43 +1,54 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import DeleteWarehouse from "../components/Warehouses/DeleteWarehouse";
-import GetAllWarehouses from '../components/Warehouses/GetAllWarehouses';
-import GetSpecificWarehouse from '../components/Warehouses/GetSpecificWarehouse';
-import PatchWarehouse from '../components/Warehouses/PatchWarehouse';
-import PostWarehouse from '../components/Warehouses/PostWarehouse';
-import Warehouse from '../components/Warehouses/Warehouse'
+import GetAllWarehouses from "../components/Warehouses/GetAllWarehouses";
+import GetSpecificWarehouse from "../components/Warehouses/GetSpecificWarehouse";
+import PatchWarehouse from "../components/Warehouses/PatchWarehouse";
+import PostWarehouse from "../components/Warehouses/PostWarehouse";
+import WarehouseLayout from "../components/Warehouses/WarehouseLayout";
+import { rootRoute } from "./router";
+import NotFound from "../components/NotFound";
 
-const warehouseRoute = createRoute({
-  getParentRoute: () => Warehouse,
+export const warehouseRoute = createRoute({
+  getParentRoute: () => rootRoute,
   path: "/warehouse",
-  component: Warehouse,
+  component: WarehouseLayout,
+  notFoundComponent: NotFound,
 });
 
 const postWarehouseRoute = createRoute({
-  getParentRoute: () => Warehouse,
+  getParentRoute: () => warehouseRoute,
   path: "/create",
-  component: Warehouse,
+  component: PostWarehouse,
 });
 
 const getAllWarehousesRoute = createRoute({
-  getParentRoute: () => Warehouse,
+  getParentRoute: () => warehouseRoute,
   path: "/all",
-  component: Warehouse,
+  component: GetAllWarehouses,
 });
 
 const getSpecificWarehouseRoute = createRoute({
-  getParentRoute: () => Warehouse,
+  getParentRoute: () => warehouseRoute,
   path: "/search",
-  component: Warehouse,
+  component: GetSpecificWarehouse,
 });
 
 const patchWarehouseRoute = createRoute({
-  getParentRoute: () => Warehouse,
+  getParentRoute: () => warehouseRoute,
   path: "/update",
-  component: Warehouse,
+  component: PatchWarehouse,
 });
 
 const deleteWarehouseRoute = createRoute({
-  getParentRoute: () => Warehouse,
+  getParentRoute: () => warehouseRoute,
   path: "/delete",
-  component: Warehouse,
+  component: DeleteWarehouse,
 });
+
+warehouseRoute.addChildren([
+  postWarehouseRoute,
+  getAllWarehousesRoute,
+  getSpecificWarehouseRoute,
+  patchWarehouseRoute,
+  deleteWarehouseRoute,
+]);
