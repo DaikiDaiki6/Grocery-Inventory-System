@@ -1,25 +1,25 @@
-import { Link } from '@tanstack/react-router';
+import { Link } from "@tanstack/react-router";
 
-export default function Links(){
-    return (
-        <nav>
+export default function Links() {
+  return (
+    <nav>
       <ul>
         <li>
-          <Link to="/create-warehouse">Create Warehouse</Link>
+          <Link to="/category">Category</Link>
         </li>
         <li>
-          <Link to="/update-warehouse">Update Warehouse</Link>
+          <Link to="/product">Product</Link>
         </li>
         <li>
-          <Link to="/delete-warehouse">Delete Warehouse</Link>
+          <Link to="/supplier">Supplier</Link>
         </li>
         <li>
-          <Link to="/search-warehouse">Search Warehouse</Link>
+          <Link to="/inventory">Inventory</Link>
         </li>
         <li>
-          <Link to="/all-warehouses">All Warehouses</Link>
+          <Link to="/warehouse">Warehouses</Link>
         </li>
       </ul>
     </nav>
-    )
+  );
 }
