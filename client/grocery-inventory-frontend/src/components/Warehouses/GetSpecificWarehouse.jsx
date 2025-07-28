@@ -30,50 +30,72 @@ function GetSpecificWarehouse() {
   };
 
   return (
-    <div className="warehouse">
-      <h1>🏬🔍 Search Warehouse</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="number"
-          name="warehouseID"
-          value={searchId}
-          onChange={handleInputChange}
-          placeholder="Enter Warehouse ID (eg. 12)"
-          min={1}
-        />
-        {errorID && <div className="error-details"> {errorID}</div>}
-        <button type="submit" disabled={!searchId.trim()}>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">🏬🔍 Search Warehouse</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="warehouseID" className="block text-sm font-medium text-gray-700">
+            Warehouse ID
+          </label>
+          <input
+            type="number"
+            id="warehouseID"
+            name="warehouseID"
+            value={searchId}
+            onChange={handleInputChange}
+            placeholder="e.g. 12"
+            min={1}
+            className={`w-full px-4 py-2 border ${
+              errorID ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {errorID && <p className="text-red-600 text-sm mt-1">{errorID}</p>}
+        </div>
+
+        <button
+          type="submit"
+          disabled={!searchId.trim()}
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md disabled:opacity-50"
+        >
           Search Warehouse
         </button>
       </form>
 
       {currentId && (
-        <div className="warehouse-details">
-          {isLoading && <p>Loading warehouse...</p>}
+        <div className="mt-6">
+          {isLoading && <p className="text-gray-600">Loading warehouse...</p>}
+
           {error && (
-            <p>
-              Error Loading warehouse:{" "}
-              {typeof error.response?.data === "string"
-                ? error.response.data
-                : error.response?.data?.title || error.message}
-            </p>
+            <div className="text-red-600 bg-red-50 p-3 mt-4 rounded-md border border-red-300">
+              <p className="font-semibold">Error loading warehouse:</p>
+              <p>
+                {typeof error.response?.data === "string"
+                  ? error.response.data
+                  : error.response?.data?.title || error.message}
+              </p>
+            </div>
           )}
 
           {!isLoading && !error && warehouse && (
-            <div className="warehouse-info">
-              <table>
-                <thead>
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold text-green-700 mb-2">
+                ✅ Warehouse Found:
+              </h2>
+              <table className="w-full table-auto border-collapse border border-gray-300 rounded overflow-hidden text-left text-sm">
+                <thead className="bg-gray-100">
                   <tr>
-                    <th>Warehouse Name</th>
-                    <th>ID</th>
+                    <th className="border border-gray-300 px-4 py-2">Warehouse Name</th>
+                    <th className="border border-gray-300 px-4 py-2">ID</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>
-                      <strong>{warehouse.warehouseName}</strong>
+                  <tr className="bg-white hover:bg-gray-50">
+                    <td className="border border-gray-300 px-4 py-2 font-medium">
+                      {warehouse.warehouseName}
                     </td>
-                    <td>{warehouse.warehouseID}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {warehouse.warehouseID}
+                    </td>
                   </tr>
                 </tbody>
               </table>

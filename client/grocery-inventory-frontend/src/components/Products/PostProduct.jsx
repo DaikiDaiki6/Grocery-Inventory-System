@@ -76,102 +76,145 @@ function PostProduct() {
   };
 
   return (
-    <div className="product">
-      <h1>➕ Create Product</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="productId"
-          value={productId}
-          minLength={11}
-          maxLength={11}
-          onChange={handleInputChange}
-          placeholder="Enter product Id (eg.12-123-1233)"
-        />
-        {errorID && <div className="error-details">{errorID}</div>}
-        <input
-          type="text"
-          name="productName"
-          minLength={2}
-          maxLength={100}
-          value={productName}
-          onChange={handleInputChange}
-          placeholder="Enter product name (eg. Brewery Mass)"
-        />
-        {errorName && <div className="error-details">{errorName}</div>}
-        <label>Category</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option key="" value="">
-            Select Category
-          </option>
-          {categories.map((w) => (
-            <option key={w.categoryID} value={w.categoryID}>
-              {w.categoryName} (ID: {w.categoryID})
-            </option>
-          ))}
-        </select>
-        <label>Supplier</label>
-        <select value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-          <option key="" value="">
-            Select Supplier
-          </option>
-          {suppliers.map((w) => (
-            <option key={w.supplierID} value={w.supplierID}>
-              {w.supplierName} (ID: {w.supplierID})
-            </option>
-          ))}
-        </select>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 mt-6">
+      <h1 className="text-xl font-bold text-gray-800 mb-4">
+        ➕ Create Product
+      </h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Product ID
+          </label>
+          <input
+            type="text"
+            name="productId"
+            value={productId}
+            onChange={handleInputChange}
+            placeholder="Enter product ID (e.g., 12-123-1233)"
+            className={`w-full px-4 py-2 border ${
+              errorID ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            minLength={11}
+            maxLength={11}
+          />
+          {errorID && <p className="text-red-600 text-sm mt-1">{errorID}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Product Name
+          </label>
+          <input
+            type="text"
+            name="productName"
+            value={productName}
+            onChange={handleInputChange}
+            placeholder="Enter product name (e.g., Brewery Mass)"
+            className={`w-full px-4 py-2 border ${
+              errorName ? "border-red-500" : "border-gray-300"
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            minLength={2}
+            maxLength={100}
+          />
+          {errorName && (
+            <p className="text-red-600 text-sm mt-1">{errorName}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Select Category</option>
+            {categories.map((w) => (
+              <option key={w.categoryID} value={w.categoryID}>
+                {w.categoryName} (ID: {w.categoryID})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Supplier
+          </label>
+          <select
+            value={supplier}
+            onChange={(e) => setSupplier(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Select Supplier</option>
+            {suppliers.map((w) => (
+              <option key={w.supplierID} value={w.supplierID}>
+                {w.supplierName} (ID: {w.supplierID})
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           type="submit"
           disabled={
             postProduct.isPending ||
-            (!productId.trim() &&
-              !productName.trim() &&
-              !category.trim() &&
-              !supplier.trim())
+            errorID ||
+            errorName ||
+            !productId.trim() ||
+            !productName.trim() ||
+            !category.trim() ||
+            !supplier.trim()
           }
+          className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
         >
-          {postProduct.isPending ? "Creating... " : "Create Product"}
+          {postProduct.isPending ? "Creating..." : "Create Product"}
         </button>
       </form>
 
       {postProduct.isSuccess && (
-        <div className="product-details">
-          <strong>✅ Product created successfully!</strong>
-          {postProduct.data && (
-            <table>
-              <thead>
+        <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-5 shadow-sm">
+          <h2 className="font-semibold text-green-800 text-base mb-4 flex items-center gap-2">
+            ✅ Product created successfully!
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-gray-700 bg-white border border-gray-200 rounded-xl">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs border-b border-gray-200">
                 <tr>
-                  <th>Product Name</th>
-                  <th>ID</th>
-                  <th>Category</th>
-                  <th>Supplier</th>
+                  <th className="px-4 py-3 text-left">Product Name</th>
+                  <th className="px-4 py-3 text-left">ID</th>
+                  <th className="px-4 py-3 text-left">Category</th>
+                  <th className="px-4 py-3 text-left">Supplier</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <strong>{postProduct.data.productName}</strong>
+                <tr className="border-t border-gray-100 hover:bg-gray-50 transition">
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {postProduct.data.productName}
                   </td>
-                  <td>{postProduct.data.productID}</td>
-                  <td>{postProduct.data.categoryID} - {getCategoryNameFromID(postProduct.data.categoryID)}</td>
-                  <td>{postProduct.data.supplierID} - {getSupplierNameFromID(postProduct.data.supplierID)}</td>
+                  <td className="px-4 py-3 text-gray-800">
+                    {postProduct.data.productID}
+                  </td>
+                  <td className="px-4 py-3">
+                    {postProduct.data.categoryID} —{" "}
+                    {getCategoryNameFromID(postProduct.data.categoryID)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {postProduct.data.supplierID} —{" "}
+                    {getSupplierNameFromID(postProduct.data.supplierID)}
+                  </td>
                 </tr>
               </tbody>
             </table>
-          )}
+          </div>
         </div>
       )}
 
       {postProduct.isError && (
-        <div className="product-error">
-          <p>
-            Error creating product:{" "}
-            {typeof postProduct.error?.response?.data === "string"
-              ? postProduct.error.response.data
-              : postProduct.error?.response?.data?.message ||
-                postProduct.error?.message}
-          </p>
+        <div className="mt-4 p-4 border border-red-200 bg-red-50 text-red-700 rounded-lg">
+          Error creating product:{" "}
+          {typeof postProduct.error?.response?.data === "string"
+            ? postProduct.error.response.data
+            : postProduct.error?.response?.data?.message ||
+              postProduct.error?.message}
         </div>
       )}
     </div>

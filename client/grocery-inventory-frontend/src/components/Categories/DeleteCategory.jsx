@@ -44,20 +44,28 @@ function DeleteCategory() {
 
       {!showConfirmation ? (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="number"
-            name="deleteId"
-            value={categoryID}
-            onChange={handleInputChange}
-            placeholder="Enter category ID (e.g. 12)"
-            min={1}
-            className={`w-full px-4 py-2 border ${
-              errorID ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {errorID && (
-            <p className="text-sm text-red-600 font-medium">{errorID}</p>
-          )}
+          <div>
+            <label
+              htmlFor="categoryID"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Category ID
+            </label>
+            <input
+              type="number"
+              name="categoryID"
+              value={categoryID}
+              onChange={handleInputChange}
+              placeholder="Enter category ID (e.g. 12)"
+              min={1}
+              className={`w-full px-4 py-2 border ${
+                errorID ? "border-red-500" : "border-gray-300"
+              } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            />
+            {errorID && (
+              <p className="text-sm text-red-600 font-medium">{errorID}</p>
+            )}
+          </div>
 
           <button
             type="submit"
