@@ -1,7 +1,9 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs;
 using GroceryInventoryAPI.DTOs.Supplier;
 using GroceryInventoryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,20 +23,51 @@ public class SuppliersController : BaseController
     }
 
     /// <summary>
-    /// Retrieves all suppliers and their products.
+    /// Retrieves all suppliers and their products with pagination.
     /// </summary>
-    /// <returns>A list of suppliers.</returns>
-    /// <response code="200">Returns the list of suppliers</response>
+    /// <param name="pageNumber">Page number (default: 1)</param>
+    /// <param name="pageSize">Page size (default: 20, max: 100)</param>
+    /// <returns>Paginated list of suppliers</returns>
+    /// <response code="200">Returns the paginated list of suppliers</response>
+    /// <response code="400">Invalid pagination parameters</response>
     /// <response code="500">Internal server error</response>
     [HttpGet]
+    [Authorize] // Anyone with a valid token can view suppliers
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllSuppliers()
+    public async Task<IActionResult> GetAllSuppliers(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
     {
+        // Validate pagination parameters
+        if (pageNumber < 1)
+        {
+            return BadRequest("Page number must be 1 or greater");
+        }
+
+        if (pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest("Page size must be between 1 and 100");
+        }
+
+        _logger.LogInformation("Fetching suppliers page {PageNumber} with size {PageSize}...", pageNumber, pageSize);
+
+        // Get total count
+        var totalCount = await _dbContext.Suppliers.CountAsync();
+
+        // Calculate pagination values
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var hasPreviousPage = pageNumber > 1;
+        var hasNextPage = pageNumber < totalPages;
+        var previousPageNumber = hasPreviousPage ? pageNumber - 1 : 0;
+        var nextPageNumber = hasNextPage ? pageNumber + 1 : 0;
 
         var suppliers = await _dbContext.Suppliers
             .Include(s => s.Products)
             .OrderBy(p => p.SupplierName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .Select(i => new
             {
                 i.SupplierID,
@@ -49,8 +82,23 @@ public class SuppliersController : BaseController
             })
             .ToListAsync();
 
-        return Ok(suppliers);
+        var response = new PaginationResponse<object>
+        {
+            Data = suppliers.Cast<object>().ToList(),
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+            HasPreviousPage = hasPreviousPage,
+            HasNextPage = hasNextPage,
+            PreviousPageNumber = previousPageNumber,
+            NextPageNumber = nextPageNumber
+        };
 
+        _logger.LogInformation("Retrieved {Count} suppliers from page {PageNumber} of {TotalPages}.", 
+            suppliers.Count, pageNumber, totalPages);
+
+        return Ok(response);
     }
 
     /// <summary>
@@ -62,6 +110,7 @@ public class SuppliersController : BaseController
     /// <response code="404">Supplier not found</response>
     /// <response code="500">Internal server error</response>
     [HttpGet("{id}")]
+    [Authorize] // Anyone with a valid token can view specific suppliers
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -99,6 +148,7 @@ public class SuppliersController : BaseController
     /// <response code="400">Invalid supplier input</response>
     /// <response code="500">Internal server error</response>
     [HttpPost]
+    [Authorize(Roles = "Admin")] // Only Admin can create suppliers
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -129,6 +179,7 @@ public class SuppliersController : BaseController
     /// <response code="404">Supplier not found</response>
     /// <response code="500">Internal server error</response>
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")] // Only Admin can patch suppliers
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -162,6 +213,7 @@ public class SuppliersController : BaseController
     /// <response code="404">Supplier not found</response>
     /// <response code="500">Internal server error</response>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")] // Only Admin can delete suppliers
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

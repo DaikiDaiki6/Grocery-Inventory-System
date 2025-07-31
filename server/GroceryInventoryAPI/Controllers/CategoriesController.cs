@@ -1,13 +1,16 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs;
 using GroceryInventoryAPI.DTOs.Category;
 using GroceryInventoryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace GroceryInventoryAPI.Controllers;
 
+[Authorize]
 public class CategoriesController : BaseController
 {
     private readonly GroceryDbContext _dbContext;
@@ -19,20 +22,50 @@ public class CategoriesController : BaseController
     }
 
     /// <summary>
-    /// Gets all categories
+    /// Gets all categories with pagination
     /// </summary>
-    /// <returns>List of categories</returns>
+    /// <param name="pageNumber">Page number (default: 1)</param>
+    /// <param name="pageSize">Page size (default: 20, max: 100)</param>
+    /// <returns>Paginated list of categories</returns>
     /// <response code="200">Categories retrieved successfully</response>
+    /// <response code="400">Invalid pagination parameters</response>
     /// <response code="500">Internal server error</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllCategories()
+    public async Task<IActionResult> GetAllCategories(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
     {
+        // Validate pagination parameters
+        if (pageNumber < 1)
+        {
+            return BadRequest("Page number must be 1 or greater");
+        }
 
-        _logger.LogInformation("Fetching all categories...");
+        if (pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest("Page size must be between 1 and 100");
+        }
+
+        _logger.LogInformation("Fetching categories page {PageNumber} with size {PageSize}...", pageNumber, pageSize);
+
+        // Get total count
+        var totalCount = await _dbContext.Categories.CountAsync();
+
+        // Calculate pagination values
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var hasPreviousPage = pageNumber > 1;
+        var hasNextPage = pageNumber < totalPages;
+        var previousPageNumber = hasPreviousPage ? pageNumber - 1 : 0;
+        var nextPageNumber = hasNextPage ? pageNumber + 1 : 0;
+
+        // Get paginated data
         var categories = await _dbContext.Categories
             .OrderBy(p => p.CategoryName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .Select(p => new
             {
                 p.CategoryID,
@@ -40,9 +73,23 @@ public class CategoriesController : BaseController
             })
             .ToListAsync();
 
-        _logger.LogInformation("Retrieved {Count} categories.", categories.Count);
-        return Ok(categories);
+        var response = new PaginationResponse<object>
+        {
+            Data = categories.Cast<object>().ToList(),
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+            HasPreviousPage = hasPreviousPage,
+            HasNextPage = hasNextPage,
+            PreviousPageNumber = previousPageNumber,
+            NextPageNumber = nextPageNumber
+        };
 
+        _logger.LogInformation("Retrieved {Count} categories from page {PageNumber} of {TotalPages}.", 
+            categories.Count, pageNumber, totalPages);
+        
+        return Ok(response);
     }
 
     /// <summary>
@@ -93,6 +140,7 @@ public class CategoriesController : BaseController
     /// <response code="201">Category created successfully</response>
     /// <response code="400">Invalid request data</response>
     /// <response code="500">Internal server error</response>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +179,7 @@ public class CategoriesController : BaseController
     /// <response code="400">Invalid request data</response>
     /// <response code="404">Category not found</response>
     /// <response code="500">Internal server error</response>
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -163,7 +212,7 @@ public class CategoriesController : BaseController
             existingCategory.CategoryName,
         });
     }
-    
+
 
     /// <summary>
     /// Deletes a category by ID
@@ -173,6 +222,7 @@ public class CategoriesController : BaseController
     /// <response code="204">Category deleted successfully</response>
     /// <response code="404">Category not found</response>
     /// <response code="500">Internal server error</response>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

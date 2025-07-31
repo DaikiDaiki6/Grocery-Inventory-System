@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsService } from "../api/services";
 
-export const useGetAllProducts = () => {
+export const useGetAllProducts = (pageNumber = 1, pageSize = 20) => {
   return useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", pageNumber, pageSize],
     queryFn: async () => {
-      const response = await productsService.getAllProducts();
+      const response = await productsService.getAllProducts(
+        pageNumber,
+        pageSize
+      );
       return response.data;
     },
   });
@@ -18,7 +21,7 @@ export const useGetSpecificProduct = (id) => {
       const response = await productsService.getSpecificProduct(id);
       return response.data;
     },
-    enabled: !!id, // only run if id exists
+    enabled: !!id,
   });
 };
 
@@ -40,7 +43,7 @@ export const usePutProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
+    mutationFn: async ({ id, data }) => {
       const response = await productsService.putProduct(id, data);
       return response.data;
     },
@@ -54,7 +57,7 @@ export const usePatchProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
+    mutationFn: async ({ id, data }) => {
       const response = await productsService.patchProduct(id, data);
       return response.data;
     },
@@ -69,7 +72,7 @@ export const useDeleteProduct = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        await productsService.deleteProduct(id);
+      await productsService.deleteProduct(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });

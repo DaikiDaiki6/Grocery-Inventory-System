@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { usePostInventory } from "../../hooks/useInventories";
 import { useFetchForeignKeys } from "./useFetchForeignKeys";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PostInventory() {
   const [formData, setFormData] = useState({
@@ -21,6 +23,7 @@ function PostInventory() {
   const [validationErrors, setValidationErrors] = useState([]);
   const postInventory = usePostInventory();
   const { products, warehouses, isLoading, error } = useFetchForeignKeys();
+  const isAdmin = isUserAdmin();
 
   const getProductNameFromID = (p) => {
     const product = products.find((e) => e.productID === p);
@@ -108,7 +111,7 @@ function PostInventory() {
     if (
       updatedFormData.warehouseID !== "" &&
       (isNaN(updatedFormData.warehouseID) ||
-        Number(updatedFormData.warehouseID) < 1)
+        Number(updatedFormData.warehouseID) <= 0)
     ) {
       errors.push("⚠️ Warehouse ID must be greater than 0");
     }
@@ -118,21 +121,33 @@ function PostInventory() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.productID.trim() || !formData.warehouseID) return;
+    if (validationErrors.length > 0) return;
 
     try {
-      await postInventory.mutateAsync({
-        ...formData,
-        stockQuantity: parseInt(formData.stockQuantity) || 0,
-        reorderLevel: parseInt(formData.reorderLevel) || 0,
-        reorderQuantity: parseInt(formData.reorderQuantity) || 0,
-        unitPrice: parseFloat(formData.unitPrice) || 0,
-        salesVolume: parseInt(formData.salesVolume) || 0,
-        inventoryTurnoverRate: parseInt(formData.inventoryTurnoverRate) || 0,
-        status: parseInt(formData.status),
-        warehouseID: parseInt(formData.warehouseID),
+      const dataToSend = {};
+      Object.keys(formData).forEach((key) => {
+        if (formData[key] !== "") {
+          if (key === "unitPrice") {
+            dataToSend[key] = parseFloat(formData[key]);
+          } else if (
+            [
+              "stockQuantity",
+              "reorderLevel",
+              "reorderQuantity",
+              "salesVolume",
+              "inventoryTurnoverRate",
+              "status",
+              "warehouseID",
+            ].includes(key)
+          ) {
+            dataToSend[key] = parseInt(formData[key]);
+          } else {
+            dataToSend[key] = formData[key];
+          }
+        }
       });
+
+      await postInventory.mutateAsync(dataToSend);
 
       setFormData({
         stockQuantity: "",
@@ -148,194 +163,307 @@ function PostInventory() {
         productID: "",
         warehouseID: "",
       });
-
       setValidationErrors([]);
+      console.log("Inventory created successfully!");
     } catch (error) {
-      console.error("Failed to create inventory:", error);
+      console.error("Failed to create inventory: ", error);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 mt-6">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">
+    <div
+      className={`max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
+      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         ➕ Create Inventory
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
 
-      {validationErrors.length > 0 && (
-        <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-xl space-y-2 shadow-sm">
-          {validationErrors.map((error, index) => (
-            <p key={index} className="text-sm leading-snug">
-              {error}
-            </p>
-          ))}
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            create inventories.
+          </p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        {[
-          "stockQuantity",
-          "reorderLevel",
-          "reorderQuantity",
-          "unitPrice",
-          "dateReceived",
-          "lastOrderDate",
-          "expirationDate",
-          "salesVolume",
-          "inventoryTurnoverRate",
-          "status",
-        ].map((field) =>
-          field === "status" ? (
-            <div key={field}> 
-              <label className="block text-sm font-medium text-gray-700 mb-1 ">
-                {field
-                  .replace(/([A-Z])/g, " $1")
-                  .replace(/^./, (c) => c.toUpperCase())}
-              </label>
-              <select
-                key={field}
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300
-                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">Select status</option>
-                <option value="0">Active</option>
-                <option value="1">BackOrdered</option>
-                <option value="2">Discontinued</option>
-              </select>
-            </div>
-          ) : (
-            <div key={field}>
-              <label className="block text-sm font-medium text-gray-700 mb-1 ">
-                {field
-                  .replace(/([A-Z])/g, " $1")
-                  .replace(/^./, (c) => c.toUpperCase())}
-              </label>
-              <input
-                key={field}
-                type={field.toLowerCase().includes("date") ? "date" : "number"}
-                step={
-                  field === "unitPrice" || field === "inventoryTurnoverRate"
-                    ? "0.01"
-                    : "1"
-                }
-                min={field.toLowerCase().includes("date") ? undefined : "0"}
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                placeholder={field}
-                className="w-full px-4 py-2 border border-gray-300
-                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-          )
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Stock Quantity
+            </label>
+            <input
+              type="number"
+              name="stockQuantity"
+              value={formData.stockQuantity}
+              onChange={handleChange}
+              placeholder="Enter stock quantity"
+              min={0}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Reorder Level
+            </label>
+            <input
+              type="number"
+              name="reorderLevel"
+              value={formData.reorderLevel}
+              onChange={handleChange}
+              placeholder="Enter reorder level"
+              min={0}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Reorder Quantity
+            </label>
+            <input
+              type="number"
+              name="reorderQuantity"
+              value={formData.reorderQuantity}
+              onChange={handleChange}
+              placeholder="Enter reorder quantity"
+              min={1}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Unit Price
+            </label>
+            <input
+              type="number"
+              name="unitPrice"
+              value={formData.unitPrice}
+              onChange={handleChange}
+              placeholder="Enter unit price"
+              step="0.01"
+              min={0.01}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Date Received
+            </label>
+            <input
+              type="date"
+              name="dateReceived"
+              value={formData.dateReceived}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Last Order Date
+            </label>
+            <input
+              type="date"
+              name="lastOrderDate"
+              value={formData.lastOrderDate}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Expiration Date
+            </label>
+            <input
+              type="date"
+              name="expirationDate"
+              value={formData.expirationDate}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Sales Volume
+            </label>
+            <input
+              type="number"
+              name="salesVolume"
+              value={formData.salesVolume}
+              onChange={handleChange}
+              placeholder="Enter sales volume"
+              min={0}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Inventory Turnover Rate
+            </label>
+            <input
+              type="number"
+              name="inventoryTurnoverRate"
+              value={formData.inventoryTurnoverRate}
+              onChange={handleChange}
+              placeholder="Enter turnover rate"
+              min={0}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            >
+              <option value="">Select Status</option>
+              <option value="0">Active</option>
+              <option value="1">BackOrdered</option>
+              <option value="2">Discontinued</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Product ID
+            </label>
+            <select
+              name="productID"
+              value={formData.productID}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            >
+              <option value="">Select Product</option>
+              {products.map((product) => (
+                <option key={product.productID} value={product.productID}>
+                  {product.productID} - {product.productName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Warehouse ID
+            </label>
+            <select
+              name="warehouseID"
+              value={formData.warehouseID}
+              onChange={handleChange}
+              disabled={!isAdmin}
+              className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+            >
+              <option value="">Select Warehouse</option>
+              {warehouses.map((warehouse) => (
+                <option
+                  key={warehouse.warehouseID}
+                  value={warehouse.warehouseID}
+                >
+                  {warehouse.warehouseID} - {warehouse.warehouseName}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {validationErrors.length > 0 && (
+          <div className="p-4 bg-red-50 border border-red-300 rounded-lg">
+            <ul className="text-red-800 text-sm space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
         )}
-
-        <label className="block text-sm font-medium text-gray-700 mb-1 ">
-          Product
-        </label>
-        <select
-          name="productID"
-          value={formData.productID}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300
-                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="">Select a product</option>
-          {products.map((p) => (
-            <option key={p.productID} value={p.productID}>
-              {p.productName} (ID: {p.productID})
-            </option>
-          ))}
-        </select>
-
-        <label className="block text-sm font-medium text-gray-700 mb-1 ">
-          Warehouse
-        </label>
-        <select
-          name="warehouseID"
-          value={formData.warehouseID}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300
-                rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
-          <option value="">Select a warehouse</option>
-          {warehouses.map((w) => (
-            <option key={w.warehouseID} value={w.warehouseID}>
-              {w.warehouseName} (ID: {w.warehouseID})
-            </option>
-          ))}
-        </select>
 
         <button
           type="submit"
           disabled={
-            postInventory.isPending ||
-            !formData.productID.trim() ||
-            !formData.warehouseID ||
-            !formData.reorderLevel.trim() ||
-            !formData.reorderQuantity.trim() ||
-            !formData.unitPrice.trim() ||
-            !formData.dateReceived.trim() ||
-            !formData.lastOrderDate.trim() ||
-            !formData.expirationDate.trim() ||
-            !formData.salesVolume.trim() ||
-            !formData.inventoryTurnoverRate.trim() ||
-            !formData.status.trim()
+            !isAdmin || postInventory.isPending || validationErrors.length > 0
           }
-          className="w-full py-2 mt-4 px-4 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {postInventory.isPending ? "Creating..." : "Create Inventory"}
         </button>
       </form>
 
       {postInventory.isSuccess && (
-        <div>
-          <h2>✅ Inventory Created</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(postInventory.data).map(([key, value]) =>
-                key !== "product" && key !== "warehouse" ? (
-                  <tr key={key}>
-                    <th>{key}</th>
-                    <td>
-                      {key === "status"
-                        ? value === 0
-                          ? "Active"
-                          : value === 1
-                          ? "BackOrdered"
-                          : value === 2
-                          ? "Discontinued"
-                          : value
-                        : key === "productID"
-                        ? `${value} - ${getProductNameFromID(value)}`
-                        : key === "warehouseID"
-                        ? `${value} - ${getWarehouseNameFromID(value)}`
-                        : value}
-                    </td>
-                  </tr>
-                ) : null
-              )}
-            </tbody>
-          </table>
+        <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
+          <strong className="text-green-800 text-base flex items-center gap-2">
+            ✅ Inventory created successfully!
+          </strong>
         </div>
       )}
 
       {postInventory.isError && (
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
-          <p>
-            ❌ Error creating inventory:{" "}
-            {typeof postInventory.error?.response?.data === "string"
-              ? postInventory.error.response.data
-              : postInventory.error?.response?.data?.message ||
-                postInventory.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(postInventory.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(postInventory.error).icon} Error creating
+            inventory:{" "}
+            {getErrorMessage(postInventory.error, "creating", "inventory")}
           </p>
         </div>
       )}

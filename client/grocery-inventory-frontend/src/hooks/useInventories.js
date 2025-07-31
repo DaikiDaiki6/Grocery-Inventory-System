@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { inventoriesService } from "../api/services";
 
-export const useGetAllInventories = () => {
+export const useGetAllInventories = (pageNumber = 1, pageSize = 20) => {
   return useQuery({
-    queryKey: ["inventories"],
+    queryKey: ["inventories", pageNumber, pageSize],
     queryFn: async () => {
-      const response = await inventoriesService.getAllInventories();
+      const response = await inventoriesService.getAllInventories(
+        pageNumber,
+        pageSize
+      );
       return response.data;
     },
   });
@@ -18,10 +21,9 @@ export const useGetSpecificInventory = (id) => {
       const response = await inventoriesService.getSpecificInventory(id);
       return response.data;
     },
-    enabled: !!id, // only run if id exists
+    enabled: !!id,
   });
 };
-
 
 export const usePostInventory = () => {
   const queryClient = useQueryClient();
@@ -37,12 +39,12 @@ export const usePostInventory = () => {
   });
 };
 
-export const usePatchInventory = () => {
+export const usePutInventory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
-      const response = await inventoriesService.patchInventory(id, data);
+    mutationFn: async ({ id, data }) => {
+      const response = await inventoriesService.putInventory(id, data);
       return response.data;
     },
     onSuccess: () => {
@@ -51,12 +53,12 @@ export const usePatchInventory = () => {
   });
 };
 
-export const usePutInventory = () => {
+export const usePatchInventory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
-      const response = await inventoriesService.putInventory(id, data);
+    mutationFn: async ({ id, data }) => {
+      const response = await inventoriesService.patchInventory(id, data);
       return response.data;
     },
     onSuccess: () => {
@@ -70,7 +72,7 @@ export const useDeleteInventory = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        await inventoriesService.deleteInventory(id);
+      await inventoriesService.deleteInventory(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventories"] });

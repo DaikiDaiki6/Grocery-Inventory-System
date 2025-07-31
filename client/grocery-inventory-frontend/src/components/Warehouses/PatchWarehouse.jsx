@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { usePatchWarehouse } from "../../hooks/useWarehouses";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PatchWarehouse() {
   const [warehouseID, setWarehouseID] = useState("");
@@ -7,6 +9,7 @@ function PatchWarehouse() {
   const [errorName, setErrorName] = useState("");
   const [errorID, setErrorID] = useState("");
   const patchWarehouse = usePatchWarehouse();
+  const isAdmin = isUserAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,10 +49,28 @@ function PatchWarehouse() {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+    <div
+      className={`max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         ✏️ Patch Warehouse
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
+
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            modify warehouses.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -66,9 +87,12 @@ function PatchWarehouse() {
             onChange={handleInputChange}
             placeholder="Enter Warehouse ID (e.g. 12)"
             min={1}
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorID ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
           {errorID && <p className="text-sm text-red-600 mt-1">{errorID}</p>}
         </div>
@@ -88,9 +112,12 @@ function PatchWarehouse() {
             placeholder="Enter Warehouse Name (e.g. Grove Street)"
             minLength={2}
             maxLength={150}
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorName ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
           {errorName && (
             <p className="text-sm text-red-600 mt-1">{errorName}</p>
@@ -100,13 +127,18 @@ function PatchWarehouse() {
         <button
           type="submit"
           disabled={
+            !isAdmin ||
             patchWarehouse.isPending ||
             !warehouseID.trim() ||
             !warehouseName.trim() ||
             errorID ||
             errorName
           }
-          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {patchWarehouse.isPending ? "Patching..." : "Patch Warehouse"}
         </button>
@@ -115,44 +147,21 @@ function PatchWarehouse() {
       {patchWarehouse.isSuccess && (
         <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
           <strong className="text-green-800 text-base flex items-center gap-2">
-            ✅ Warehouse updated successfully!
+            ✅ Warehouse patched successfully!
           </strong>
-
-          {patchWarehouse.data && (
-            <div className="overflow-x-auto mt-4">
-              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
-                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
-                  <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Warehouse Name
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="hover:bg-green-50 transition">
-                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
-                      {patchWarehouse.data.warehouseName}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {patchWarehouse.data.warehouseID}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       )}
 
       {patchWarehouse.isError && (
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
-          <p>
-            ❌ Error updating warehouse:{" "}
-            {typeof patchWarehouse.error?.response?.data === "string"
-              ? patchWarehouse.error.response.data
-              : patchWarehouse.error?.response?.data?.title ||
-                patchWarehouse.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(patchWarehouse.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(patchWarehouse.error).icon} Error updating
+            warehouse:{" "}
+            {getErrorMessage(patchWarehouse.error, "updating", "warehouse")}
           </p>
         </div>
       )}

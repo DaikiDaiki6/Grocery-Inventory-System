@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoriesService } from "../api/services";
 
-export const useGetAllCategories = () => {
+export const useGetAllCategories = (pageNumber = 1, pageSize = 20) => {
   return useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categories", pageNumber, pageSize],
     queryFn: async () => {
-      const response = await categoriesService.getAllCategories();
+      const response = await categoriesService.getAllCategories(
+        pageNumber,
+        pageSize
+      );
       return response.data;
     },
   });
@@ -40,7 +43,7 @@ export const usePatchCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
+    mutationFn: async ({ id, data }) => {
       const response = await categoriesService.patchCategory(id, data);
       return response.data;
     },
@@ -55,7 +58,7 @@ export const useDeleteCategory = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        await categoriesService.deleteCategory(id);
+      await categoriesService.deleteCategory(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });

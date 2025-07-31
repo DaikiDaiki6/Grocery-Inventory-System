@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { usePatchProduct } from "../../hooks/useProducts";
 import { useFetchForeignKeys } from "./useFetchForeignKeys";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PatchProduct() {
   const [productID, setProductID] = useState("");
@@ -11,6 +13,7 @@ function PatchProduct() {
   const [errorName, setErrorName] = useState("");
   const patchProduct = usePatchProduct();
   const { categories, suppliers, isLoading, error } = useFetchForeignKeys();
+  const isAdmin = isUserAdmin();
 
   const getCategoryNameFromID = (c) => {
     const cInt = parseInt(c);
@@ -79,10 +82,28 @@ function PatchProduct() {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+    <div
+      className={`max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         ✏️ Patch Product
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
+
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            modify products.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -99,13 +120,17 @@ function PatchProduct() {
             minLength={11}
             maxLength={11}
             onChange={handleInputChange}
-            placeholder="Enter product Id (eg.12-123-1233)"
+            placeholder="Enter Product ID (e.g. 11-111-1111)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorID ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
-          {errorID && <div className="error-details">{errorID}</div>}
+          {errorID && <p className="text-sm text-red-600 mt-1">{errorID}</p>}
         </div>
+
         <div>
           <label
             htmlFor="productName"
@@ -120,68 +145,86 @@ function PatchProduct() {
             maxLength={100}
             value={productName}
             onChange={handleInputChange}
-            placeholder="Enter product name (eg. Brewery Mass)"
+            placeholder="Enter Product Name (e.g. Milk)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorName ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
-          {errorName && <div className="error-details">{errorName}</div>}
+          {errorName && (
+            <p className="text-sm text-red-600 mt-1">{errorName}</p>
+          )}
         </div>
+
         <div>
           <label
-            htmlFor="category"
+            htmlFor="categoryId"
             className="block text-sm font-medium text-gray-700"
           >
-            Category
+            Category ID
           </label>
           <select
+            name="categoryId"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            name="category"
-            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={!isAdmin}
+            className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           >
-            <option key="" value="">
-              Select Category
-            </option>
-            {categories.map((w) => (
-              <option key={w.categoryID} value={w.categoryID}>
-                {w.categoryName} (ID: {w.categoryID})
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category.categoryID} value={category.categoryID}>
+                {category.categoryID} - {category.categoryName}
               </option>
             ))}
           </select>
         </div>
+
         <div>
           <label
-            htmlFor="supplier"
+            htmlFor="supplierId"
             className="block text-sm font-medium text-gray-700"
           >
-            Suplier
+            Supplier ID
           </label>
           <select
+            name="supplierId"
             value={supplierId}
             onChange={(e) => setSupplierId(e.target.value)}
-            name="supplier"
-            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={!isAdmin}
+            className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           >
-            <option key="" value="">
-              Select Supplier
-            </option>
-            {suppliers.map((w) => (
-              <option key={w.supplierID} value={w.supplierID}>
-                {w.supplierName} (ID: {w.supplierID})
+            <option value="">Select Supplier</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier.supplierID} value={supplier.supplierID}>
+                {supplier.supplierID} - {supplier.supplierName}
               </option>
             ))}
           </select>
         </div>
+
         <button
           type="submit"
           disabled={
+            !isAdmin ||
             patchProduct.isPending ||
-            !productID.trim()||
+            (!productID.trim() &&
+              !productName.trim() &&
+              !categoryId.trim() &&
+              !supplierId.trim()) ||
             errorID ||
             errorName
           }
-          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {patchProduct.isPending ? "Patching..." : "Patch Product"}
         </button>
@@ -190,58 +233,20 @@ function PatchProduct() {
       {patchProduct.isSuccess && (
         <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
           <strong className="text-green-800 text-base flex items-center gap-2">
-            ✅ Category updated successfully!
+            ✅ Product patched successfully!
           </strong>
-
-          {patchProduct.data && (
-            <div className="overflow-x-auto mt-4">
-              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
-                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
-                  <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Product Name
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Category
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Supplier
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="hover:bg-green-50 transition">
-                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
-                      <strong>{patchProduct.data.productName}</strong>
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {patchProduct.data.productID}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {patchProduct.data.categoryID} -{" "}
-                      {getCategoryNameFromID(patchProduct.data.categoryID)}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {patchProduct.data.supplierID} -{" "}
-                      {getSupplierNameFromID(patchProduct.data.supplierID)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       )}
 
       {patchProduct.isError && (
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
-          <p>
-            ❌ Error updating category:{" "}
-            {typeof patchProduct.error?.response?.data === "string"
-              ? patchProduct.error.response.data
-              : patchProduct.error?.response?.data?.title ||
-                patchProduct.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(patchProduct.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(patchProduct.error).icon} Error updating product:{" "}
+            {getErrorMessage(patchProduct.error, "updating", "product")}
           </p>
         </div>
       )}

@@ -1,7 +1,33 @@
+import { useState } from "react";
 import { useGetAllSuppliers } from "../../hooks/useSuppliers";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
 
 function GetAllSuppliers() {
-  const { data: suppliers, isLoading, error } = useGetAllSuppliers();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  const {
+    data: paginatedData,
+    isLoading,
+    error,
+  } = useGetAllSuppliers(pageNumber, pageSize);
+
+  const handlePreviousPage = () => {
+    if (pageNumber > 1) {
+      setPageNumber(pageNumber - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (paginatedData?.hasNextPage) {
+      setPageNumber(pageNumber + 1);
+    }
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setPageNumber(1); // Reset to first page when changing page size
+  };
 
   if (isLoading) {
     return (
@@ -12,17 +38,31 @@ function GetAllSuppliers() {
   }
 
   if (error) {
+    const errorStyling = getErrorStyling(error);
     return (
-      <div className="p-6 bg-red-100 text-red-700 rounded-2xl shadow-md">
+      <div
+        className={`p-6 border rounded-2xl shadow-md ${errorStyling.container}`}
+      >
         <p>
-          ❌ Error loading suppliers:{" "}
-          {typeof error.response?.data === "string"
-            ? error.response.data
-            : error.response?.data?.title || error.message}
+          {errorStyling.icon} Error loading suppliers:{" "}
+          {getErrorMessage(error, "loading", "supplier")}
         </p>
       </div>
     );
   }
+
+  // Extract data and pagination info from the response
+  const suppliers = paginatedData?.data || [];
+  const pagination = {
+    totalCount: paginatedData?.totalCount || 0,
+    pageNumber: paginatedData?.pageNumber || 1,
+    pageSize: paginatedData?.pageSize || 20,
+    totalPages: paginatedData?.totalPages || 1,
+    hasPreviousPage: paginatedData?.hasPreviousPage || false,
+    hasNextPage: paginatedData?.hasNextPage || false,
+    previousPageNumber: paginatedData?.previousPageNumber || 0,
+    nextPageNumber: paginatedData?.nextPageNumber || 0,
+  };
 
   return (
     <div className="p-6 bg-white rounded-2xl shadow-md space-y-4">
@@ -30,8 +70,33 @@ function GetAllSuppliers() {
         🚚 All Suppliers
       </h1>
 
-      {suppliers?.length === 0 ? (
-        <p className="text-gray-600 italic">No suppliers found in the database.</p>
+      {/* Page Size Selector */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm text-gray-600">Items per page:</label>
+        <select
+          value={pageSize}
+          onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+          className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+      </div>
+
+      {/* Pagination Info */}
+      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+        <p>
+          Showing {suppliers.length} of {pagination.totalCount} suppliers (Page{" "}
+          {pagination.pageNumber} of {pagination.totalPages})
+        </p>
+      </div>
+
+      {suppliers.length === 0 ? (
+        <p className="text-gray-600 italic">
+          No suppliers found in the database.
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-300 rounded-xl overflow-hidden text-sm text-left text-gray-700">
@@ -43,13 +108,43 @@ function GetAllSuppliers() {
             </thead>
             <tbody>
               {suppliers.map((supplier) => (
-                <tr key={supplier.supplierID} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 border-b font-medium">{supplier.supplierName}</td>
+                <tr
+                  key={supplier.supplierID}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-4 py-3 border-b font-medium">
+                    {supplier.supplierName}
+                  </td>
                   <td className="px-4 py-3 border-b">{supplier.supplierID}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+          <div className="text-sm text-gray-600">
+            Page {pagination.pageNumber} of {pagination.totalPages}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handlePreviousPage}
+              disabled={!pagination.hasPreviousPage}
+              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={!pagination.hasNextPage}
+              className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

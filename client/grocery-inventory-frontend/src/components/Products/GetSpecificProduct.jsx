@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGetSpecificProduct } from "../../hooks/useProducts";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
 
 function GetSpecificProduct() {
   const [searchId, setSearchId] = useState("");
@@ -27,10 +28,15 @@ function GetSpecificProduct() {
 
   return (
     <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">🥫🔍 Search Product</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">
+        🥫🔍 Search Product
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="productID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="productID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Product ID
           </label>
           <input
@@ -63,13 +69,13 @@ function GetSpecificProduct() {
           {isLoading && <p className="text-gray-600">Loading product...</p>}
 
           {error && (
-            <div className="text-red-600 bg-red-50 p-3 mt-4 rounded-md border border-red-300">
+            <div
+              className={`p-3 mt-4 rounded-md border ${
+                getErrorStyling(error).container
+              }`}
+            >
               <p className="font-semibold">Error loading product:</p>
-              <p>
-                {typeof error.response?.data === "string"
-                  ? error.response.data
-                  : error.response?.data?.title || error.message}
-              </p>
+              <p>{getErrorMessage(error, "loading", "product")}</p>
             </div>
           )}
 
@@ -81,18 +87,32 @@ function GetSpecificProduct() {
               <table className="w-full table-auto border-collapse border border-gray-300 rounded overflow-hidden text-left text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border border-gray-300 px-4 py-2">Product Name</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Product Name
+                    </th>
                     <th className="border border-gray-300 px-4 py-2">ID</th>
-                    <th className="border border-gray-300 px-4 py-2">Category</th>
-                    <th className="border border-gray-300 px-4 py-2">Supplier</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Category
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Supplier
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="bg-white hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2 font-medium">{product.productName}</td>
-                    <td className="border border-gray-300 px-4 py-2">{product.productID}</td>
-                    <td className="border border-gray-300 px-4 py-2">{product.category}</td>
-                    <td className="border border-gray-300 px-4 py-2">{product.supplier}</td>
+                    <td className="border border-gray-300 px-4 py-2 font-medium">
+                      {product.productName}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {product.productID}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {product.category}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {product.supplier}
+                    </td>
                   </tr>
                 </tbody>
               </table>

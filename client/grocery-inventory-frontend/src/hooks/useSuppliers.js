@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { suppliersService } from "../api/services";
 
-export const useGetAllSuppliers = () => {
+export const useGetAllSuppliers = (pageNumber = 1, pageSize = 20) => {
   return useQuery({
-    queryKey: ["suppliers"],
+    queryKey: ["suppliers", pageNumber, pageSize],
     queryFn: async () => {
-      const response = await suppliersService.getAllSuppliers();
+      const response = await suppliersService.getAllSuppliers(
+        pageNumber,
+        pageSize
+      );
       return response.data;
     },
   });
@@ -18,7 +21,7 @@ export const useGetSpecificSupplier = (id) => {
       const response = await suppliersService.getSpecificSupplier(id);
       return response.data;
     },
-    enabled: !!id, // only run if id exists
+    enabled: !!id,
   });
 };
 
@@ -40,7 +43,7 @@ export const usePatchSupplier = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
+    mutationFn: async ({ id, data }) => {
       const response = await suppliersService.patchSupplier(id, data);
       return response.data;
     },
@@ -55,7 +58,7 @@ export const useDeleteSupplier = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        await suppliersService.deleteSupplier(id);
+      await suppliersService.deleteSupplier(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });

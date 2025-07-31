@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { usePatchCategory } from "../../hooks/useCategories";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PatchCategory() {
   const [categoryID, setCategoryID] = useState("");
@@ -7,6 +9,7 @@ function PatchCategory() {
   const [errorName, setErrorName] = useState("");
   const [errorID, setErrorID] = useState("");
   const patchCategory = usePatchCategory();
+  const isAdmin = isUserAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,14 +51,35 @@ function PatchCategory() {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+    <div
+      className={`max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         ✏️ Patch Category
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
+
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            modify categories.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="categoryID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="categoryID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Category ID
           </label>
           <input
@@ -65,15 +89,21 @@ function PatchCategory() {
             onChange={handleInputChange}
             placeholder="Enter Category ID (e.g. 12)"
             min={1}
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorID ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
           {errorID && <p className="text-sm text-red-600 mt-1">{errorID}</p>}
         </div>
 
         <div>
-          <label htmlFor="categoryName" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="categoryName"
+            className="block text-sm font-medium text-gray-700"
+          >
             Category Name
           </label>
           <input
@@ -84,19 +114,33 @@ function PatchCategory() {
             value={categoryName}
             onChange={handleInputChange}
             placeholder="Enter Category Name (e.g. Milk)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorName ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
-          {errorName && <p className="text-sm text-red-600 mt-1">{errorName}</p>}
+          {errorName && (
+            <p className="text-sm text-red-600 mt-1">{errorName}</p>
+          )}
         </div>
 
         <button
           type="submit"
           disabled={
-            patchCategory.isPending || !categoryID.trim() || !categoryName.trim() || errorID || errorName
+            !isAdmin ||
+            patchCategory.isPending ||
+            !categoryID.trim() ||
+            !categoryName.trim() ||
+            errorID ||
+            errorName
           }
-          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {patchCategory.isPending ? "Patching..." : "Patch Category"}
         </button>
@@ -113,7 +157,9 @@ function PatchCategory() {
               <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
                 <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
                   <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">Category Name</th>
+                    <th className="px-4 py-3 border-b border-gray-300">
+                      Category Name
+                    </th>
                     <th className="px-4 py-3 border-b border-gray-300">ID</th>
                   </tr>
                 </thead>
@@ -134,13 +180,14 @@ function PatchCategory() {
       )}
 
       {patchCategory.isError && (
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
-          <p>
-            ❌ Error updating category:{" "}
-            {typeof patchCategory.error?.response?.data === "string"
-              ? patchCategory.error.response.data
-              : patchCategory.error?.response?.data?.title ||
-                patchCategory.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(patchCategory.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(patchCategory.error).icon} Error updating category:{" "}
+            {getErrorMessage(patchCategory.error, "updating", "category")}
           </p>
         </div>
       )}

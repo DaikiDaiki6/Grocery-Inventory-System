@@ -1,6 +1,13 @@
 import { Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 
-export default function Links() {
+export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
   return (
     <div className="flex justify-center items-start gap-8 p-6">
       {/* Left side: Welcome message */}
@@ -18,6 +25,26 @@ export default function Links() {
           Organize and monitor your categories, products, suppliers,
           inventories, and warehouses from one easy-to-use dashboard.
         </p>
+
+        {isLoggedIn ? (
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 text-sm">
+              ✅ You are logged in and can access all features
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm">
+              ⚠️ Please sign in to access the inventory management features
+            </p>
+            <Link
+              to="/auth-test"
+              className="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
+            >
+              Sign In Now
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Vertical Divider */}
@@ -25,6 +52,9 @@ export default function Links() {
 
       {/* Right side: Navigation links as buttons */}
       <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          Quick Access
+        </h3>
         <nav>
           <ul className="space-y-2">
             <li>

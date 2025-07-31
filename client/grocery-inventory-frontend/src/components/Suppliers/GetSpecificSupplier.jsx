@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGetSpecificSupplier } from "../../hooks/useSuppliers";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
 
 function GetSpecificSupplier() {
   const [searchId, setSearchId] = useState("");
@@ -31,10 +32,15 @@ function GetSpecificSupplier() {
 
   return (
     <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">🚚🔍 Search Supplier</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">
+        🚚🔍 Search Supplier
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="supplierID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="supplierID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Supplier ID
           </label>
           <input
@@ -67,13 +73,13 @@ function GetSpecificSupplier() {
           {isLoading && <p className="text-gray-600">Loading supplier...</p>}
 
           {error && (
-            <div className="text-red-600 bg-red-50 p-3 mt-4 rounded-md border border-red-300">
+            <div
+              className={`p-3 mt-4 rounded-md border ${
+                getErrorStyling(error).container
+              }`}
+            >
               <p className="font-semibold">Error loading supplier:</p>
-              <p>
-                {typeof error.response?.data === "string"
-                  ? error.response.data
-                  : error.response?.data?.title || error.message}
-              </p>
+              <p>{getErrorMessage(error, "loading", "supplier")}</p>
             </div>
           )}
 
@@ -85,7 +91,9 @@ function GetSpecificSupplier() {
               <table className="w-full table-auto border-collapse border border-gray-300 rounded overflow-hidden text-left text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border border-gray-300 px-4 py-2">Supplier Name</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Supplier Name
+                    </th>
                     <th className="border border-gray-300 px-4 py-2">ID</th>
                   </tr>
                 </thead>

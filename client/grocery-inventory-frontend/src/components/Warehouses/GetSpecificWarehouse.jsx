@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGetSpecificWarehouse } from "../../hooks/useWarehouses";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
 
 function GetSpecificWarehouse() {
   const [searchId, setSearchId] = useState("");
@@ -31,10 +32,15 @@ function GetSpecificWarehouse() {
 
   return (
     <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">🏬🔍 Search Warehouse</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">
+        🏬🔍 Search Warehouse
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="warehouseID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="warehouseID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Warehouse ID
           </label>
           <input
@@ -66,13 +72,13 @@ function GetSpecificWarehouse() {
           {isLoading && <p className="text-gray-600">Loading warehouse...</p>}
 
           {error && (
-            <div className="text-red-600 bg-red-50 p-3 mt-4 rounded-md border border-red-300">
+            <div
+              className={`p-3 mt-4 rounded-md border ${
+                getErrorStyling(error).container
+              }`}
+            >
               <p className="font-semibold">Error loading warehouse:</p>
-              <p>
-                {typeof error.response?.data === "string"
-                  ? error.response.data
-                  : error.response?.data?.title || error.message}
-              </p>
+              <p>{getErrorMessage(error, "loading", "warehouse")}</p>
             </div>
           )}
 
@@ -84,7 +90,9 @@ function GetSpecificWarehouse() {
               <table className="w-full table-auto border-collapse border border-gray-300 rounded overflow-hidden text-left text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border border-gray-300 px-4 py-2">Warehouse Name</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Warehouse Name
+                    </th>
                     <th className="border border-gray-300 px-4 py-2">ID</th>
                   </tr>
                 </thead>

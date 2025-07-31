@@ -1,7 +1,9 @@
 using System;
 using GroceryInventoryAPI.Data;
+using GroceryInventoryAPI.DTOs;
 using GroceryInventoryAPI.DTOs.Product;
 using GroceryInventoryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,21 +22,52 @@ public class ProductsController : BaseController
     }
 
     /// <summary>
-    /// Retrieves all products with category and supplier names.
+    /// Retrieves all products with category and supplier names with pagination.
     /// </summary>
-    /// <returns>List of products</returns>
-    /// <response code="200">Returns the list of products</response>
+    /// <param name="pageNumber">Page number (default: 1)</param>
+    /// <param name="pageSize">Page size (default: 20, max: 100)</param>
+    /// <returns>Paginated list of products</returns>
+    /// <response code="200">Returns the paginated list of products</response>
+    /// <response code="400">Invalid pagination parameters</response>
     /// <response code="500">Internal server error</response>
     [HttpGet]
+    [Authorize] // Anyone with a valid token can view products
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetAllProducts(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
     {
+        // Validate pagination parameters
+        if (pageNumber < 1)
+        {
+            return BadRequest("Page number must be 1 or greater");
+        }
+
+        if (pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest("Page size must be between 1 and 100");
+        }
+
+        _logger.LogInformation("Fetching products page {PageNumber} with size {PageSize}...", pageNumber, pageSize);
+
+        // Get total count
+        var totalCount = await _dbContext.Products.CountAsync();
+
+        // Calculate pagination values
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var hasPreviousPage = pageNumber > 1;
+        var hasNextPage = pageNumber < totalPages;
+        var previousPageNumber = hasPreviousPage ? pageNumber - 1 : 0;
+        var nextPageNumber = hasNextPage ? pageNumber + 1 : 0;
 
         var products = await _dbContext.Products
             .Include(i => i.Category)
             .Include(i => i.Supplier)
             .OrderBy(p => p.ProductName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .Select(i => new
             {
                 i.ProductID,
@@ -44,8 +77,23 @@ public class ProductsController : BaseController
             })
             .ToListAsync();
 
-        return Ok(products);
+        var response = new PaginationResponse<object>
+        {
+            Data = products.Cast<object>().ToList(),
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+            HasPreviousPage = hasPreviousPage,
+            HasNextPage = hasNextPage,
+            PreviousPageNumber = previousPageNumber,
+            NextPageNumber = nextPageNumber
+        };
 
+        _logger.LogInformation("Retrieved {Count} products from page {PageNumber} of {TotalPages}.", 
+            products.Count, pageNumber, totalPages);
+
+        return Ok(response);
     }
 
     /// <summary>
@@ -57,6 +105,7 @@ public class ProductsController : BaseController
     /// <response code="404">Product not found</response>
     /// <response code="500">Internal server error</response>
     [HttpGet("{id}")]
+    [Authorize] // Anyone with a valid token can view specific products
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -90,6 +139,7 @@ public class ProductsController : BaseController
     /// <response code="400">Invalid input data</response>
     /// <response code="500">Internal server error</response>
     [HttpPost]
+    [Authorize(Roles = "Admin")] // Only Admin can create products
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -128,6 +178,7 @@ public class ProductsController : BaseController
     /// <response code="404">Product not found</response>
     /// <response code="500">Internal server error</response>
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")] // Only Admin can update products
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -161,6 +212,7 @@ public class ProductsController : BaseController
     /// <response code="404">Product not found</response>
     /// <response code="500">Internal server error</response>
     [HttpPatch("{id}")]
+    [Authorize(Roles = "Admin")] // Only Admin can patch products
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -197,6 +249,7 @@ public class ProductsController : BaseController
     /// <response code="404">Product not found</response>
     /// <response code="500">Internal server error</response>
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")] // Only Admin can delete products
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

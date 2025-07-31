@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { usePutProduct } from "../../hooks/useProducts";
 import { useFetchForeignKeys } from "./useFetchForeignKeys";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PutProduct() {
   const [productID, setProductID] = useState("");
@@ -11,6 +13,7 @@ function PutProduct() {
   const [errorName, setErrorName] = useState("");
   const putProduct = usePutProduct();
   const { categories, suppliers } = useFetchForeignKeys();
+  const isAdmin = isUserAdmin();
 
   const getCategoryNameFromID = (c) => {
     const cInt = parseInt(c);
@@ -82,10 +85,28 @@ function PutProduct() {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+    <div
+      className={`max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         ✏️ Update Product
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
+
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            update products.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -99,14 +120,15 @@ function PutProduct() {
             minLength={11}
             maxLength={11}
             onChange={handleInputChange}
-            placeholder="Enter product ID (e.g. 11-111-1111)"
+            placeholder="Enter Product ID (e.g. 11-111-1111)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorID ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
-          {errorID && (
-            <div className="text-red-600 text-sm mt-1">{errorID}</div>
-          )}
+          {errorID && <p className="text-sm text-red-600 mt-1">{errorID}</p>}
         </div>
 
         <div>
@@ -116,32 +138,39 @@ function PutProduct() {
           <input
             type="text"
             name="productName"
+            minLength={2}
+            maxLength={100}
             value={productName}
             onChange={handleInputChange}
-            placeholder="Enter product name (e.g. Brewery Mass)"
+            placeholder="Enter Product Name (e.g. Milk)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorName ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
           {errorName && (
-            <div className="text-red-600 text-sm mt-1">{errorName}</div>
+            <p className="text-sm text-red-600 mt-1">{errorName}</p>
           )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Category
+            Category ID
           </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            name="category"
-            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={!isAdmin}
+            className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           >
             <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.categoryID} value={cat.categoryID}>
-                {cat.categoryName} (ID: {cat.categoryID})
+            {categories.map((category) => (
+              <option key={category.categoryID} value={category.categoryID}>
+                {category.categoryID} - {category.categoryName}
               </option>
             ))}
           </select>
@@ -149,18 +178,20 @@ function PutProduct() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Supplier
+            Supplier ID
           </label>
           <select
             value={supplierId}
             onChange={(e) => setSupplierId(e.target.value)}
-            name="supplier"
-            className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={!isAdmin}
+            className={`w-full px-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           >
             <option value="">Select Supplier</option>
-            {suppliers.map((sup) => (
-              <option key={sup.supplierID} value={sup.supplierID}>
-                {sup.supplierName} (ID: {sup.supplierID})
+            {suppliers.map((supplier) => (
+              <option key={supplier.supplierID} value={supplier.supplierID}>
+                {supplier.supplierID} - {supplier.supplierName}
               </option>
             ))}
           </select>
@@ -169,13 +200,18 @@ function PutProduct() {
         <button
           type="submit"
           disabled={
+            !isAdmin ||
             putProduct.isPending ||
             !productID.trim() ||
-            (!productName.trim() || !categoryId.trim() || !supplierId.trim()) ||
+            (!productName.trim() && !categoryId.trim() && !supplierId.trim()) ||
             errorID ||
             errorName
           }
-          className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {putProduct.isPending ? "Updating..." : "Update Product"}
         </button>
@@ -186,56 +222,18 @@ function PutProduct() {
           <strong className="text-green-800 text-base flex items-center gap-2">
             ✅ Product updated successfully!
           </strong>
-
-          {putProduct.data && (
-            <div className="overflow-x-auto mt-4">
-              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
-                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
-                  <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Product Name
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Category
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Supplier
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="hover:bg-green-50 transition">
-                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
-                      {putProduct.data.productName}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {putProduct.data.productID}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {putProduct.data.categoryID} -{" "}
-                      {getCategoryNameFromID(putProduct.data.categoryID)}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {putProduct.data.supplierID} -{" "}
-                      {getSupplierNameFromID(putProduct.data.supplierID)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       )}
 
       {putProduct.isError && (
-        <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-800 mt-6">
-          <p>
-            ❌ Error updating product:{" "}
-            {typeof putProduct.error?.response?.data === "string"
-              ? putProduct.error.response.data
-              : putProduct.error?.response?.data?.title ||
-                putProduct.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(putProduct.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(putProduct.error).icon} Error updating product:{" "}
+            {getErrorMessage(putProduct.error, "updating", "product")}
           </p>
         </div>
       )}

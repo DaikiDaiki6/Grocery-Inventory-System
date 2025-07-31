@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { usePostWarehouse } from "../../hooks/useWarehouses";
+import { getErrorMessage, getErrorStyling } from "../../utils/errorHandler";
+import { isUserAdmin } from "../../utils/authUtils";
 
 function PostWarehouse() {
   const [warehouseName, setWarehouseName] = useState("");
   const [errorName, setErrorName] = useState("");
   const postWarehouse = usePostWarehouse();
+  const isAdmin = isUserAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,14 +37,35 @@ function PostWarehouse() {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6">
+    <div
+      className={`max-w-xl mx-auto bg-white shadow-md rounded-xl p-6 mt-8 border border-gray-200 space-y-6 ${
+        !isAdmin ? "opacity-50" : ""
+      }`}
+    >
       <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
         🏠 Create Warehouse
+        {!isAdmin && (
+          <span className="text-sm text-gray-500 font-normal">
+            (Admin Only)
+          </span>
+        )}
       </h1>
+
+      {!isAdmin && (
+        <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg text-yellow-800">
+          <p className="flex items-center gap-2">
+            🔒 This action requires administrator privileges. Only admins can
+            create warehouses.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="warehouseID" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="warehouseID"
+            className="block text-sm font-medium text-gray-700"
+          >
             Warehouse ID
           </label>
           <input
@@ -54,7 +78,10 @@ function PostWarehouse() {
         </div>
 
         <div>
-          <label htmlFor="warehouseName" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="warehouseName"
+            className="block text-sm font-medium text-gray-700"
+          >
             Warehouse Name
           </label>
           <input
@@ -65,9 +92,12 @@ function PostWarehouse() {
             value={warehouseName}
             onChange={handleInputChange}
             placeholder="Enter Warehouse Name (e.g., Grove Street)"
+            disabled={!isAdmin}
             className={`w-full px-4 py-2 border ${
               errorName ? "border-red-500" : "border-gray-300"
-            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+            } rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
           {errorName && (
             <p className="text-sm text-red-600 mt-1">{errorName}</p>
@@ -76,54 +106,40 @@ function PostWarehouse() {
 
         <button
           type="submit"
-          disabled={postWarehouse.isPending || !warehouseName.trim()}
-          className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
+          disabled={
+            !isAdmin ||
+            postWarehouse.isPending ||
+            !warehouseName.trim() ||
+            errorName
+          }
+          className={`w-full py-2 px-4 rounded-lg transition ${
+            isAdmin
+              ? "bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              : "bg-gray-400 text-gray-600 cursor-not-allowed"
+          }`}
         >
           {postWarehouse.isPending ? "Creating..." : "Create Warehouse"}
         </button>
       </form>
 
       {postWarehouse.isSuccess && (
-        <div className="mt-6 p-6 bg-green-50 border border-green-300 rounded-lg shadow-sm">
+        <div className="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg shadow-sm">
           <strong className="text-green-800 text-base flex items-center gap-2">
             ✅ Warehouse created successfully!
           </strong>
-
-          {postWarehouse.data && (
-            <div className="overflow-x-auto mt-4">
-              <table className="min-w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden">
-                <thead className="bg-green-100 text-green-900 uppercase text-xs font-semibold">
-                  <tr>
-                    <th className="px-4 py-3 border-b border-gray-300">
-                      Warehouse Name
-                    </th>
-                    <th className="px-4 py-3 border-b border-gray-300">ID</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="hover:bg-green-50 transition">
-                    <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-800">
-                      {postWarehouse.data.warehouseName}
-                    </td>
-                    <td className="px-4 py-3 border-b border-gray-200 text-gray-700">
-                      {postWarehouse.data.warehouseID}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       )}
 
       {postWarehouse.isError && (
-        <div className="mt-6 p-4 bg-red-50 border border-red-300 rounded text-red-700">
-          <p>
-            ❌ Error in creating warehouse:{" "}
-            {typeof postWarehouse.error?.response?.data === "string"
-              ? postWarehouse.error.response.data
-              : postWarehouse.error?.response?.data?.message ||
-                postWarehouse.error?.message}
+        <div
+          className={`p-4 border rounded-lg mt-6 ${
+            getErrorStyling(postWarehouse.error).container
+          }`}
+        >
+          <p className="flex items-center gap-2">
+            {getErrorStyling(postWarehouse.error).icon} Error creating
+            warehouse:{" "}
+            {getErrorMessage(postWarehouse.error, "creating", "warehouse")}
           </p>
         </div>
       )}

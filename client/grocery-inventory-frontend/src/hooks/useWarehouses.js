@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { warehousesService } from "../api/services";
 
-export const useGetAllWarehouses = () => {
+export const useGetAllWarehouses = (pageNumber = 1, pageSize = 20) => {
   return useQuery({
-    queryKey: ["warehouses"],
+    queryKey: ["warehouses", pageNumber, pageSize],
     queryFn: async () => {
-      const response = await warehousesService.getAllWarehouses();
+      const response = await warehousesService.getAllWarehouses(
+        pageNumber,
+        pageSize
+      );
       return response.data;
     },
   });
@@ -18,7 +21,7 @@ export const useGetSpecificWarehouse = (id) => {
       const response = await warehousesService.getSpecificWarehouse(id);
       return response.data;
     },
-    enabled: !!id, // only run if id exists
+    enabled: !!id,
   });
 };
 
@@ -40,7 +43,7 @@ export const usePatchWarehouse = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({id, data}) => {
+    mutationFn: async ({ id, data }) => {
       const response = await warehousesService.patchWarehouse(id, data);
       return response.data;
     },
@@ -55,7 +58,7 @@ export const useDeleteWarehouse = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-        await warehousesService.deleteWarehouse(id);
+      await warehousesService.deleteWarehouse(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["warehouses"] });
